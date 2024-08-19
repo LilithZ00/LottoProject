@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottoproject/pages/LoginPage.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -93,12 +94,10 @@ class RegisterPage extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () {
-                },
+                onPressed: () => register(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor:  const Color(0xFFF5F0FF),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0),
                   ),
                   padding: const EdgeInsets.symmetric(
                       horizontal: 40.0, vertical: 15.0),
@@ -109,6 +108,13 @@ class RegisterPage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+  
+  void register(BuildContext context) {
+    Navigator.pop(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 }

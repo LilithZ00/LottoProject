@@ -4,6 +4,10 @@ import 'package:lottoproject/pages/LoginPage.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  // ทดสอบถ้าเปลี่ยนเลข pop ออกก่อน
+  final int walletBalance = 50;
+  final int ticketPrice = 100;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,8 +18,7 @@ class HomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             GestureDetector(
-              onTap: () {
-              },
+              onTap: () {},
               child: const CircleAvatar(
                 backgroundColor: Colors.grey,
                 radius: 20,
@@ -31,8 +34,7 @@ class HomePage extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.notifications, color: Colors.black),
-              onPressed: () {
-              },
+              onPressed: () {},
             ),
           ],
         ),
@@ -60,8 +62,7 @@ class HomePage extends StatelessWidget {
                 const SizedBox(width: 10),
                 IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () {
-                  },
+                  onPressed: () {},
                 ),
               ],
             ),
@@ -119,16 +120,24 @@ class HomePage extends StatelessWidget {
               icon: Column(
                 children: [
                   Icon(Icons.home, color: Color.fromARGB(255, 123, 123, 123)),
-                  Text('Home', style: TextStyle(color: Color.fromARGB(255, 117, 117, 117),fontSize: 10,)),
+                  Text('Home',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 117, 117, 117),
+                        fontSize: 10,
+                      )),
                 ],
               ),
-              onPressed:  null,
+              onPressed: null,
             ),
             IconButton(
               icon: const Column(
                 children: [
                   Icon(Icons.confirmation_number, color: Colors.black),
-                  Text('My Lotto', style: TextStyle(color: Color.fromARGB(255, 0, 0, 0),fontSize: 10,)),
+                  Text('My Lotto',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 10,
+                      )),
                 ],
               ),
               onPressed: () => mylotto(context),
@@ -176,7 +185,11 @@ class HomePage extends StatelessWidget {
               icon: const Column(
                 children: [
                   Icon(Icons.account_balance_wallet, color: Colors.black),
-                  Text('Wallet', style: TextStyle(color: Color.fromARGB(255, 0, 0, 0),fontSize: 10,)),
+                  Text('Wallet',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 10,
+                      )),
                 ],
               ),
               onPressed: () => wallet(context),
@@ -185,7 +198,11 @@ class HomePage extends StatelessWidget {
               icon: const Column(
                 children: [
                   Icon(Icons.exit_to_app, color: Colors.red),
-                  Text('Singout', style: TextStyle(color: Color.fromARGB(255, 244, 67, 54),fontSize: 10,)),
+                  Text('Singout',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 244, 67, 54),
+                        fontSize: 10,
+                      )),
                 ],
               ),
               onPressed: () => login(context),
@@ -195,39 +212,64 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-//แน่ใจ?
+
+  // แน่ใจ?
   void sure(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: const Text("คุณต้องการจะซื้อใช่หรือไม่"),
+          content: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "คุณต้องการจะซื้อใช่หรือไม่",
+                style: TextStyle(fontSize: 19),
+              ),
+            ],
+          ),
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                showSuccess(context);
-              },
-              child: const Text(
-                "ตกลง",
-                style: TextStyle(color: Colors.green),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                "ยกเลิก",
-                style: TextStyle(color: Colors.red),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.green[400],
+                  ),
+                  child: const Text(
+                    "ตกลง",
+                    style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    if (walletBalance >= ticketPrice) {
+                      showSuccess(context);
+                    } else {
+                      showFailure(context);
+                    }
+                  },
+                ),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.red[400],
+                  ),
+                  child: const Text(
+                    "ยกเลิก",
+                    style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
           ],
         );
       },
     );
   }
-//สำเร็จ
+
+  // สำเร็จ
   void showSuccess(BuildContext context) {
     showDialog(
       context: context,
@@ -245,17 +287,37 @@ class HomePage extends StatelessWidget {
       },
     );
   }
-  
+
+  // ชำระเงินไม่สำเร็จ
+  void showFailure(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error, color: Colors.red, size: 50),
+              SizedBox(height: 10),
+              Text("ชำระเงินไม่สำเร็จ"),
+              Text("ยอดเงินในบัญชีไม่เพียงพอ"),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void login(BuildContext context) {
     Navigator.pop(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
-  
+
   wallet(BuildContext context) {}
-  
+
   mylotto(BuildContext context) {}
-  
+
   chacklotto(BuildContext context) {}
 }
