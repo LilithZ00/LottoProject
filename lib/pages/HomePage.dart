@@ -114,7 +114,7 @@ class HomePage extends StatelessWidget {
       ),
       bottomNavigationBar: BottomAppBar(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const IconButton(
               icon: Column(
@@ -142,44 +142,18 @@ class HomePage extends StatelessWidget {
               ),
               onPressed: () => mylotto(context),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    FloatingActionButton(
-                      backgroundColor: Colors.purple[100],
-                      onPressed: () => chacklotto(context),
-                      child: Container(),
-                    ),
-                    const Positioned(
-                      child: Column(
-                        children: [
-                          Text(
-                            "Check",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          Text(
-                            "Lotto",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            IconButton(
+              icon: const Column(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.black),
+                  Text('ChackLotto',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 10,
+                      )),
+                ],
+              ),
+              onPressed: () => mylotto(context),
             ),
             IconButton(
               icon: const Column(
