@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
+import 'package:lottoproject/pages/MylottoPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -85,7 +86,7 @@ class HomePage extends StatelessWidget {
                         children: [
                           const Expanded(
                             child: Text(
-                              '0 0 0 0 0 0',
+                              'X X X X X X',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -405,7 +406,12 @@ class HomePage extends StatelessWidget {
 
   wallet(BuildContext context) {}
 
-  mylotto(BuildContext context) {}
+  mylotto(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Mylottopage()),
+    );
+  }
 
   chacklotto(BuildContext context) {}
 }
