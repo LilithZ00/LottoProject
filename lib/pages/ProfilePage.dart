@@ -67,63 +67,65 @@ class _ProfilepagStateState extends State<Profilepage> {
                       width: 350, // กำหนดความกว้าง
                       height: 320, // กำหนดความสูง
                       padding: EdgeInsets.all(16), // ระยะห่างด้านใน
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Username'),
-                                TextField(
-                                    // controller: fullnameCtl,
-                                    )
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Phone'),
-                                TextField(
-                                    // controller: fullnameCtl,
-                                    )
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('E-mail'),
-                                TextField(
-                                    // controller: fullnameCtl,
-                                    )
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Center(
-                              child: FilledButton(
-                                onPressed: update,
-                                child: const Text('เเก้ไข'),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Username'),
+                                  TextField(
+                                      // controller: fullnameCtl,
+                                      )
+                                ],
                               ),
                             ),
-                          )
-                        ],
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Phone'),
+                                  TextField(
+                                      // controller: fullnameCtl,
+                                      )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('E-mail'),
+                                  TextField(
+                                      // controller: fullnameCtl,
+                                      )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Center(
+                                child: FilledButton(
+                                  onPressed: update,
+                                  child: const Text('เเก้ไข'),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
