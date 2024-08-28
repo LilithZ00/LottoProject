@@ -7,7 +7,9 @@ class Mylottopage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Container(),
+      body: Container(
+        
+      ),
     );
   }
 }
