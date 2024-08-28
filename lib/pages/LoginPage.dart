@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/HomePage.dart';
 import 'package:lottoproject/pages/RegisterPage.dart';
-
+//camp is here
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
