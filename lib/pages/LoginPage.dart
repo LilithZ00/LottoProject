@@ -5,6 +5,12 @@ import 'package:lottoproject/pages/RegisterPage.dart';
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
+  // String phoneNum = '';
+  // String passWord = '';
+
+  TextEditingController phoneCtl = TextEditingController();
+  TextEditingController passCtl = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,9 +31,10 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 50),
-                const TextField(
+                TextField(
+                  controller: phoneCtl,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Phone',
                     labelStyle: TextStyle(
                         color: Colors.black),
@@ -40,8 +47,9 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: passCtl,
+                  decoration: const InputDecoration(
                     labelText: 'Password',
                     labelStyle: TextStyle(color: Colors.black),
                     fillColor: Color(0xFFF0ECF6),
@@ -98,6 +106,16 @@ class LoginPage extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (context) => const HomePage()),
     );
+
+    var phone = phoneCtl;
+    var pass = passCtl;
+
+    if(phone == "1" || pass =="1"){
+        Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    }
   }
   
   register(BuildContext context) {
