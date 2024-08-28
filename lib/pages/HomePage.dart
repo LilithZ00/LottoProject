@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/pages/ChackLottoPage.dart';
 import 'package:lottoproject/pages/MylottoPage.dart';
+import 'package:lottoproject/pages/ProfilePage.dart';
+import 'package:lottoproject/pages/WalletPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -12,6 +14,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
+      // การกดย้อนกลับ
       onWillPop: () async {
         bool shouldPop = await showSignOutPopup(context);
         return shouldPop;
@@ -24,7 +27,7 @@ class HomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTap: () {},
+                onTap: () => profile(context),
                 child: const CircleAvatar(
                   backgroundColor: Colors.grey,
                   radius: 20,
@@ -194,7 +197,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // popup signout cancle
+  // จับการออกจากระบบโดยกดย้อนกลับ
   Future<bool> showSignOutPopup(BuildContext context) async {
     return await showDialog<bool>(
       context: context,
@@ -249,7 +252,7 @@ class HomePage extends StatelessWidget {
         false;
   }
 
-  // popup signout button
+  // จับการออกจากระบบโดยกดปุ่ม
   void suresingout(BuildContext context) {
     showDialog(
       context: context,
@@ -405,7 +408,12 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  wallet(BuildContext context) {}
+  wallet(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Walletpage()),
+    );
+  }
 
   mylotto(BuildContext context) {
     Navigator.push(
@@ -418,6 +426,13 @@ class HomePage extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Chacklottopage()),
+    );
+  }
+  
+  profile(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Profilepage()),
     );
   }
 }
