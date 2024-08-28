@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/HomePage.dart';
 import 'package:lottoproject/pages/RegisterPage.dart';
@@ -101,20 +103,22 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void login(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
-    );
+  void login(BuildContext context) async{
+  
+    var phone = phoneCtl.text;
+    var pass = passCtl.text;
 
-    var phone = phoneCtl;
-    var pass = passCtl;
+    if(phone == "1" && pass =="1"){
+      //   Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const HomePage()),
+      // );
 
-    if(phone == "1" || pass =="1"){
-        Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
+      log('phone number and password match');
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+    
+    }else{
+      log("failed");
     }
   }
   
