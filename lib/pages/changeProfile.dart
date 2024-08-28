@@ -66,77 +66,79 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
                       width: 350, // กำหนดความกว้าง
                       height: 320, // กำหนดความสูง
                       padding: EdgeInsets.all(16), // ระยะห่างด้านใน
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Username'),
-                                TextField(
-                                    // controller: fullnameCtl,
-                                    )
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Phone'),
-                                TextField(
-                                    // controller: fullnameCtl,
-                                    )
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('E-mail'),
-                                TextField(
-                                    // controller: fullnameCtl,
-                                    )
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  FilledButton(
-                                    onPressed: () {
-                                      // ใส่ฟังก์ชันเมื่อกดปุ่มตกลง
-                                    },
-                                    child: const Text('ตกลง'),
-                                  ),
-                                  FilledButton(
-                                    onPressed: () {
-                                      // ใส่ฟังก์ชันเมื่อกดปุ่มยกเลิก
-                                    },
-                                    child: const Text('ยกเลิก'),
-                                  ),
+                                  const Text('Username'),
+                                  TextField(
+                                      // controller: fullnameCtl,
+                                      )
                                 ],
                               ),
                             ),
-                          )
-                        ],
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Phone'),
+                                  TextField(
+                                      // controller: fullnameCtl,
+                                      )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('E-mail'),
+                                  TextField(
+                                      // controller: fullnameCtl,
+                                      )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    FilledButton(
+                                      onPressed: () {
+                                        // ใส่ฟังก์ชันเมื่อกดปุ่มตกลง
+                                      },
+                                      child: const Text('ตกลง'),
+                                    ),
+                                    FilledButton(
+                                      onPressed: () {
+                                        // ใส่ฟังก์ชันเมื่อกดปุ่มยกเลิก
+                                      },
+                                      child: const Text('ยกเลิก'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
