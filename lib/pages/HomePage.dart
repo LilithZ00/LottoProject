@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
+import 'package:lottoproject/pages/ChackLottoPage.dart';
 import 'package:lottoproject/pages/MylottoPage.dart';
 
 class HomePage extends StatelessWidget {
@@ -158,7 +159,7 @@ class HomePage extends StatelessWidget {
                         )),
                   ],
                 ),
-                onPressed: () => mylotto(context),
+                onPressed: () => chacklotto(context),
               ),
               IconButton(
                 icon: const Column(
@@ -413,5 +414,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  chacklotto(BuildContext context) {}
+  chacklotto(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Chacklottopage()),
+    );
+  }
 }
