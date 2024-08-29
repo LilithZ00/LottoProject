@@ -65,18 +65,19 @@ class Walletpage extends StatelessWidget {
                     SizedBox(
                       width: 150,
                       height: 150,
-                    child: ElevatedButton(
+                      child: ElevatedButton(
                         onPressed: () => topup(context),
                         style: ElevatedButton.styleFrom(
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
                           ),
-                        ),                 
+                        ),
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Image(
-                              image: NetworkImage('https://cdn-icons-png.flaticon.com/512/5567/5567180.png'),
+                              image: NetworkImage(
+                                  'https://cdn-icons-png.flaticon.com/512/5567/5567180.png'),
                               width: 60,
                               height: 60,
                             ),
@@ -99,18 +100,19 @@ class Walletpage extends StatelessWidget {
                     SizedBox(
                       width: 150,
                       height: 150,
-                     child: ElevatedButton(
+                      child: ElevatedButton(
                         onPressed: () => withdraw(context),
                         style: ElevatedButton.styleFrom(
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
                           ),
                         ),
-                       child: const Column(
+                        child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                           Image(
-                              image: NetworkImage('https://cdn-icons-png.flaticon.com/512/5024/5024665.png'),
+                            Image(
+                              image: NetworkImage(
+                                  'https://cdn-icons-png.flaticon.com/512/5024/5024665.png'),
                               width: 60,
                               height: 60,
                             ),
@@ -135,243 +137,246 @@ class Walletpage extends StatelessWidget {
     );
   }
 
- void topup(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('เติมเงิน'),
-        content: SizedBox(
-          width: 500,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  void topup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('เติมเงิน'),
+          content: SizedBox(
+            width: 500,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(
-                        width: 115,
-                        height: 100,
-                        child: ElevatedButton(
-                          onPressed: () => topupsure(context),
-                          style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                          ),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image(
-                                image: NetworkImage('https://cdn-icons-png.flaticon.com/512/2764/2764747.png'),
-                                width: 60,
-                                height: 60,
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                '100บาท',
-                                style: TextStyle(
-                                  fontSize: 16,
+                      SingleChildScrollView(
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 115,
+                              height: 100,
+                              child: ElevatedButton(
+                                onPressed: () => topupsure(context),
+                                style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.zero,
+                                  ),
+                                ),
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image(
+                                      image: NetworkImage(
+                                          'https://cdn-icons-png.flaticon.com/512/2764/2764747.png'),
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      '100บาท',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: 120,
-                        height: 100,
-                        child: ElevatedButton(
-                          onPressed: () => topupsure(context),
-                          style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
                             ),
-                          ),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image(
-                                image: NetworkImage('https://cdn-icons-png.flaticon.com/512/2764/2764747.png'),
-                                width: 60,
-                                height: 60,
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                '1,000บาท',
-                                style: TextStyle(
-                                  fontSize: 16,
+                            SizedBox(
+                              width: 115,
+                              height: 100,
+                              child: ElevatedButton(
+                                onPressed: () => topupsure(context),
+                                style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.zero,
+                                  ),
+                                ),
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image(
+                                      image: NetworkImage(
+                                          'https://cdn-icons-png.flaticon.com/512/2764/2764747.png'),
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      '100บาท',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      SingleChildScrollView(
+                        child: Row(
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 115,
+                                  height: 100,
+                                  child: ElevatedButton(
+                                    onPressed: () => topupsure(context),
+                                    style: ElevatedButton.styleFrom(
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                      ),
+                                    ),
+                                    child: const Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image(
+                                          image: NetworkImage(
+                                              'https://cdn-icons-png.flaticon.com/512/7630/7630510.png'),
+                                          width: 60,
+                                          height: 60,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          '100บาท',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 115,
+                                  height: 100,
+                                  child: ElevatedButton(
+                                    onPressed: () => topupsure(context),
+                                    style: ElevatedButton.styleFrom(
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                      ),
+                                    ),
+                                    child: const Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image(
+                                          image: NetworkImage(
+                                              'https://cdn-icons-png.flaticon.com/512/7630/7630510.png'),
+                                          width: 60,
+                                          height: 60,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          '100บาท',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ],
               ),
-               const SizedBox(height: 20),
-               Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: 115,
-                        height: 100,
-                        child: ElevatedButton(
-                          onPressed: () => topupsure(context),
-                          style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                          ),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image(
-                                image: NetworkImage('https://cdn-icons-png.flaticon.com/512/7630/7630510.png'),
-                                width: 60,
-                                height: 60,
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                '100บาท',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: 120,
-                        height: 100,
-                        child: ElevatedButton(
-                          onPressed: () => topupsure(context),
-                          style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                          ),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image(
-                                image: NetworkImage('https://cdn-icons-png.flaticon.com/512/7630/7630510.png'),
-                                width: 60,
-                                height: 60,
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                '1,000บาท',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20), // Add some spacing before the cancel button
-            ],
-          ),
-        ),
-        actions: <Widget>[
-           TextButton(
-                child: const Text('ยกเลิก'),
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.red, 
-                  foregroundColor: Colors.white, 
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(); 
-                },
-              ),
-        ],
-      );
-    },
-  );
-}
- void withdraw(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: const TextField(
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-            labelText: 'กรุณารบุตัวเลข',
-            filled: true,
-            fillColor: Color(0xFFF0ECF6),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(30.0)),
-              borderSide: BorderSide.none,
             ),
           ),
-        ),
-        actions: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              ElevatedButton(
-                child: const Text('ถอนเงิน'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, 
-                  foregroundColor: Colors.white, 
+          actions: <Widget>[
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                TextButton(
+                  child: const Text('ยกเลิก'),
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
-                onPressed: () {
-              //gg
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('ถอนเงินสำเร็จ'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                  Navigator.of(context).pop(); 
-                },
-              ),
-              TextButton(
-                child: const Text('ยกเลิก'),
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.red, 
-                  foregroundColor: Colors.white, 
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(); 
-                },
-              ),
-            ],
-          ),
-        ],
-      );
-    },
-  );
-}
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  
-  
- 
-  
+  void withdraw(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const TextField(
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              labelText: 'กรุณารบุตัวเลข',
+              filled: true,
+              fillColor: Color(0xFFF0ECF6),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                ElevatedButton(
+                  child: const Text('ถอนเงิน'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                    //gg
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('ถอนเงินสำเร็จ'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('ยกเลิก'),
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   topupsure(BuildContext context) {
-     showDialog(
+    showDialog(
       context: context,
       builder: (BuildContext context) {
         return const AlertDialog(
