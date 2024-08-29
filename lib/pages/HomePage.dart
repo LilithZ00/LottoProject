@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/pages/ChackLottoPage.dart';
@@ -82,16 +84,29 @@ class HomePage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 itemCount: 10, // จำนวนเลขที่แสดง
                 itemBuilder: (context, index) {
+                  // สร้างฟังก์ชันสุ่มตัวเลข 6 หลัก
+                  String generateRandomNumber() {
+                    final random = Random();
+                    String randomNumber = '';
+                    for (int i = 0; i < 6; i++) {
+                      randomNumber +=
+                          random.nextInt(10).toString(); // สุ่มตัวเลข 0-9
+                      if (i < 5) {
+                        randomNumber += ' '; // เพิ่มช่องว่างหลังแต่ละตัวเลข ยกเว้นตัวสุดท้าย
+                      }
+                    }
+                    return randomNumber;
+                  }
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'X X X X X X',
-                              style: TextStyle(
+                              generateRandomNumber(), // เรียกฟังก์ชันเพื่อแสดงตัวเลขสุ่ม
+                              style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -200,55 +215,57 @@ class HomePage extends StatelessWidget {
   // จับการออกจากระบบโดยกดย้อนกลับ
   Future<bool> showSignOutPopup(BuildContext context) async {
     return await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "คุณต้องการออกจากระบบใช่หรือไม่",
-                style: TextStyle(fontSize: 15),
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "คุณต้องการออกจากระบบใช่หรือไม่",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.green[400],
-                  ),
-                  child: const Text(
-                    "ตกลง",
-                    style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                      (Route<dynamic> route) => false,
-                    );
-                  },
-                ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red[400],
-                  ),
-                  child: const Text(
-                    "ยกเลิก",
-                    style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.green[400],
+                      ),
+                      child: const Text(
+                        "ตกลง",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 255, 255, 255)),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.red[400],
+                      ),
+                      child: const Text(
+                        "ยกเลิก",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 255, 255, 255)),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ],
-        );
-      },
-    ) ??
+            );
+          },
+        ) ??
         false;
   }
 
@@ -428,7 +445,7 @@ class HomePage extends StatelessWidget {
       MaterialPageRoute(builder: (context) => const Chacklottopage()),
     );
   }
-  
+
   profile(BuildContext context) {
     Navigator.push(
       context,
