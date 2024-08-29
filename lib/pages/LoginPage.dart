@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:lottoproject/pages/AdminPage.dart';
 import 'package:lottoproject/pages/HomePage.dart';
 import 'package:lottoproject/pages/RegisterPage.dart';
 //camp is here
@@ -117,6 +118,9 @@ class LoginPage extends StatelessWidget {
       log('phone number and password match');
       Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
     
+    }else if(phone == "0" && pass =="0"){
+      log('phone number and password match');
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage()));
     }else{
       log("failed");
     }
