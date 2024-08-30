@@ -9,7 +9,6 @@ import 'package:lottoproject/pages/WalletPage.dart';
 
 class HomePage extends StatelessWidget {
 
-
   final int idx;
 
   const HomePage({super.key, required this.idx});
@@ -27,6 +26,7 @@ class HomePage extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
+          // title: Text('Index: $idx'), //แสดง id จาก API
           automaticallyImplyLeading: false,
           backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
           title: Row(
