@@ -1,9 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:lottoproject/pages/AdminPage.dart';
 import 'package:lottoproject/pages/HomePage.dart';
 import 'package:lottoproject/pages/RegisterPage.dart';
-
+//camp is here
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
+
+  // String phoneNum = '';
+  // String passWord = '';
+
+  TextEditingController phoneCtl = TextEditingController();
+  TextEditingController passCtl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +34,10 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 50),
-                const TextField(
+                TextField(
+                  controller: phoneCtl,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Phone',
                     labelStyle: TextStyle(
                         color: Colors.black),
@@ -40,8 +50,9 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: passCtl,
+                  decoration: const InputDecoration(
                     labelText: 'Password',
                     labelStyle: TextStyle(color: Colors.black),
                     fillColor: Color(0xFFF0ECF6),
@@ -93,11 +104,26 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void login(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
-    );
+  void login(BuildContext context) async{
+  
+    var phone = phoneCtl.text;
+    var pass = passCtl.text;
+
+    if(phone == "1" && pass =="1"){
+      //   Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const HomePage()),
+      // );
+
+      log('phone number and password match');
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+    
+    }else if(phone == "0" && pass =="0"){
+      log('phone number and password match');
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage()));
+    }else{
+      log("failed");
+    }
   }
   
   register(BuildContext context) {
