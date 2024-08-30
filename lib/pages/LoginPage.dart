@@ -1,9 +1,15 @@
+// ignore_for_file: must_be_immutable, unused_local_variable
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:lottoproject/pages/AdminPage.dart';
+import 'package:lottoproject/config/apitest.dart';
+import 'package:lottoproject/model/req/loginReq.dart';
+import 'package:lottoproject/model/res/loginRES.dart';
 import 'package:lottoproject/pages/HomePage.dart';
 import 'package:lottoproject/pages/RegisterPage.dart';
+import 'package:http/http.dart' as http;
+
 //camp is here
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -39,11 +45,11 @@ class LoginPage extends StatelessWidget {
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: 'Phone',
-                    labelStyle: TextStyle(
-                        color: Colors.black),
+                    labelStyle: TextStyle(color: Colors.black),
                     fillColor: Color(0xFFF0ECF6),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),//ขอบมน
+                      borderRadius:
+                          BorderRadius.all(Radius.circular(30.0)), //ขอบมน
                     ),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
@@ -104,28 +110,49 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void login(BuildContext context) async{
-  
-    var phone = phoneCtl.text;
-    var pass = passCtl.text;
+  void login(BuildContext context) async {
+    // var phone = phoneCtl.text;
+    // var pass = passCtl.text;
 
-    if(phone == "1" && pass =="1"){
-      //   Navigator.push(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => const HomePage()),
-      // );
+    // if(phone == "1" && pass =="1"){
+    //   //   Navigator.push(
+    //   //   context,
+    //   //   MaterialPageRoute(builder: (context) => const HomePage()),
+    //   // );
 
-      log('phone number and password match');
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-    
-    }else if(phone == "0" && pass =="0"){
-      log('phone number and password match');
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage()));
-    }else{
-      log("failed");
-    }
+    //   log('phone number and password match');
+    //   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+
+    // }else if(phone == "0" && pass =="0"){
+    //   log('phone number and password match');
+    //   Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage()));
+    // }else{
+    //   log("failed");
+    // }
+
+    var data =
+        CustomerLoginPostRequest(phone: phoneCtl.text, password: passCtl.text);
+    http
+        .post(Uri.parse('$SERVER/users/login'),
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: customerLoginPostRequestToJson(data))
+        .then(
+      (value) {
+        LoginRes response =
+            loginResFromJson(value.body);
+        log(response.userName);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePage(
+                  idx: response.userId)), // แก้ไขเป็น ShowtripsPage
+        );
+      },
+    ).catchError((err) {
+      log("gg");
+    });
   }
-  
+
   register(BuildContext context) {
     Navigator.push(
       context,

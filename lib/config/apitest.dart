@@ -1,0 +1,1 @@
+String SERVER = "https://node-api-lotto.vercel.app";

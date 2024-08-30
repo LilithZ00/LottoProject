@@ -8,7 +8,11 @@ import 'package:lottoproject/pages/ProfilePage.dart';
 import 'package:lottoproject/pages/WalletPage.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+
+
+  final int idx;
+
+  const HomePage({super.key, required this.idx});
 
   final int walletBalance = 50;
   final int ticketPrice = 100;
