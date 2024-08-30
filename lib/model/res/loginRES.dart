@@ -1,27 +1,27 @@
 // To parse this JSON data, do
 //
-//     final profile = profileFromJson(jsonString);
+//     final loginRes = loginResFromJson(jsonString);
 
 import 'dart:convert';
 
-Profile profileFromJson(String str) => Profile.fromJson(json.decode(str));
+LoginRes loginResFromJson(String str) => LoginRes.fromJson(json.decode(str));
 
-String profileToJson(Profile data) => json.encode(data.toJson());
+String loginResToJson(LoginRes data) => json.encode(data.toJson());
 
-class Profile {
+class LoginRes {
     int userId;
     String userType;
     String userName;
     String phone;
 
-    Profile({
+    LoginRes({
         required this.userId,
         required this.userType,
         required this.userName,
         required this.phone,
     });
 
-    factory Profile.fromJson(Map<String, dynamic> json) => Profile(
+    factory LoginRes.fromJson(Map<String, dynamic> json) => LoginRes(
         userId: json["user_id"],
         userType: json["user_type"],
         userName: json["user_name"],
@@ -35,3 +35,30 @@ class Profile {
         "phone": phone,
     };
 }
+//     class login {
+//     int userId;
+//     String userType;
+//     String userName;
+//     String phone;
+    
+//     login({
+//         required this.userId,
+//         required this.userType,
+//         required this.userName,
+//         required this.phone,
+//     });
+
+//     factory login.fromJson(Map<String, dynamic> json) => login(
+//         userId: json["userId"],
+//         userType: json["userType"],
+//         userName: json["userName"],
+//         phone: json["phone"],
+//     );
+
+//     Map<String, dynamic> toJson() => {
+//         "userId": userId,
+//         "userType": userType,
+//         "userName": userName,
+//         "phone": phone,
+//     };
+// }
