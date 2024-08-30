@@ -298,20 +298,29 @@ class Walletpage extends StatelessWidget {
             ),
           ),
           actions: <Widget>[
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                TextButton(
-                  child: const Text('ยกเลิก'),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
+                  Center(
+                    child: SizedBox(
+                      width: double.infinity, // ทำให้ปุ่มยาวเต็มที่
+                      child: TextButton(
+                        child: const Text('ยกเลิก'),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0), // ปรับขนาดของปุ่ม
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         );
@@ -337,37 +346,51 @@ class Walletpage extends StatelessWidget {
             ),
           ),
           actions: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                ElevatedButton(
-                  child: const Text('ถอนเงิน'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () {
-                    //gg
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('ถอนเงินสำเร็จ'),
-                        duration: Duration(seconds: 2),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: ElevatedButton(
+                        child: const Text('ถอนเงิน'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        ),
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('ถอนเงินสำเร็จ'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          Navigator.of(context).pop();
+                        },
                       ),
-                    );
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: const Text('ยกเลิก'),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
+                    ),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: TextButton(
+                        child: const Text('ยกเลิก'),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         );
