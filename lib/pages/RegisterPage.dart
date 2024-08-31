@@ -1,8 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:lottoproject/pages/LoginPage.dart';
 
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:lottoproject/config/apitest.dart';
+import 'package:lottoproject/model/res/registerRes.dart';
+import 'package:lottoproject/pages/LoginPage.dart';
+import 'package:lottoproject/model/req/registerReq.dart';
+import 'package:http/http.dart' as http;
 class RegisterPage extends StatelessWidget {
-  const RegisterPage({super.key});
+   RegisterPage({super.key});
+
+  TextEditingController usernameCtl = TextEditingController();
+  TextEditingController passCtl = TextEditingController();
+  TextEditingController phoneCtl = TextEditingController();
+  TextEditingController emailCtl = TextEditingController();
+  TextEditingController walletCtl = TextEditingController();
+  TextEditingController passwordCtl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +30,9 @@ class RegisterPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const TextField(
-                decoration: InputDecoration(
+               TextField(
+                controller: usernameCtl,
+                decoration: const InputDecoration(
                   labelText: 'Username',
                   filled: true,
                   fillColor: Color(0xFFF0ECF6), 
@@ -29,9 +43,10 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const TextField(
+               TextField(
+                controller: phoneCtl,
                 keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Phone',
                   filled: true,
                   fillColor: Color(0xFFF0ECF6),
@@ -42,9 +57,10 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const TextField(
+               TextField(
+                controller: emailCtl,
                 keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   filled: true,
                   fillColor: Color(0xFFF0ECF6),
@@ -55,9 +71,10 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const TextField(
+               TextField(
+                controller: passwordCtl,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                   filled: true,
                   fillColor: Color(0xFFF0ECF6),
@@ -68,9 +85,10 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const TextField(
+               TextField(
+                controller: passCtl,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Confirm Password',
                   filled: true,
                   fillColor: Color(0xFFF0ECF6),
@@ -81,8 +99,9 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const TextField(
-                decoration: InputDecoration(
+               TextField(
+                controller: walletCtl,
+                decoration: const InputDecoration(
                   labelText: 'Wallet',
                   filled: true,
                   fillColor: Color(0xFFF0ECF6),
@@ -112,9 +131,33 @@ class RegisterPage extends StatelessWidget {
   }
   
   void register(BuildContext context) {
-    Navigator.pop(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-    );
+    // Navigator.pop(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => LoginPage()),
+    // );
+     var data = RegisterRequset(username: usernameCtl.text, phone: phoneCtl.text,email: emailCtl.text,password: passwordCtl.text,wallet: int.parse(walletCtl.text));
+    if(passwordCtl.text==passCtl.text){
+      log('match');
+      http.post(Uri.parse('$SERVER/users/register'),
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: registerRequsetToJson(data))
+        .then(
+      (value) {
+        RegisterRes response =
+            registerResFromJson(value.body);
+        log(response.message);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => LoginPage()), // แก้ไขเป็น ShowtripsPage
+        );
+      },
+    ).catchError((err) {
+      log("gg");
+    });
+    }
+    else{
+      log('not match');
+    }
   }
 }
