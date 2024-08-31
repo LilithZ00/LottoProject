@@ -10,10 +10,6 @@ String loginResToJson(LoginRes data) => json.encode(data.toJson());
 
 class LoginRes {
     int userId;
-    String userName;
-    String userPhone;
-    String userEmail;
-    int userWallet;
     String userType;
     String userName;
     String phone;
@@ -21,10 +17,6 @@ class LoginRes {
 
     LoginRes({
         required this.userId,
-        required this.userName,
-        required this.userPhone,
-        required this.userEmail,
-        required this.userWallet,
         required this.userType,
         required this.userName,
         required this.phone,
@@ -33,10 +25,6 @@ class LoginRes {
 
     factory LoginRes.fromJson(Map<String, dynamic> json) => LoginRes(
         userId: json["user_id"],
-        userName: json["user_name"],
-        userPhone: json["user_phone"],
-        userEmail: json["user_email"],
-        userWallet: json["user_wallet"],
         userType: json["user_type"],
         userName: json["user_name"],
         phone: json["user_phone"],
@@ -45,13 +33,36 @@ class LoginRes {
 
     Map<String, dynamic> toJson() => {
         "user_id": userId,
-        "user_name": userName,
-        "user_phone": userPhone,
-        "user_email": userEmail,
-        "user_wallet": userWallet,
         "user_type": userType,
         "user_name": userName,
         "user_phone": phone,
         "user_email":email
     };
 }
+//     class login {
+//     int userId;
+//     String userType;
+//     String userName;
+//     String phone;
+    
+//     login({
+//         required this.userId,
+//         required this.userType,
+//         required this.userName,
+//         required this.phone,
+//     });
+
+//     factory login.fromJson(Map<String, dynamic> json) => login(
+//         userId: json["userId"],
+//         userType: json["userType"],
+//         userName: json["userName"],
+//         phone: json["phone"],
+//     );
+
+//     Map<String, dynamic> toJson() => {
+//         "userId": userId,
+//         "userType": userType,
+//         "userName": userName,
+//         "phone": phone,
+//     };
+// }

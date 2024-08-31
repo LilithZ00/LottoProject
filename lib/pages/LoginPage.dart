@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, unused_local_variable, override_on_non_overriding_member
+// ignore_for_file: must_be_immutable, unused_local_variable, override_on_non_overriding_member, library_private_types_in_public_api
 
 import 'dart:developer';
 
@@ -129,29 +129,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login(BuildContext context) async {
-    // var phone = phoneCtl.text;
-    // var pass = passCtl.text;
-
-    // if(phone == "1" && pass =="1"){
-    //   //   Navigator.push(
-    //   //   context,
-    //   //   MaterialPageRoute(builder: (context) => const HomePage()),
-    //   // );
-
-    //   log('phone number and password match');
-    //   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-
-    // }else if(phone == "0" && psass =="0"){
-    //   log('phone number and password match');
-    //   Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage()));
-    // }else{
-    //   log("failed");
-    // }
 
     var data =
         CustomerLoginPostRequest(phone: phoneCtl.text, password: passCtl.text);
     http
-        .post(Uri.parse('$SERVER/users/login'),
+        .post(Uri.parse('$server/users/login'),
             headers: {"Content-Type": "application/json; charset=utf-8"},
             body: customerLoginPostRequestToJson(data))
         .then(
@@ -168,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
       },
     ).catchError((err) {
       log("gg");
-      log('Sending request to: $SERVER/users/login');
+      log('Sending request to: $server/users/login');
     });
   }
 
