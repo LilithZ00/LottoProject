@@ -1,9 +1,10 @@
-// ignore_for_file: must_be_immutable, unused_local_variable
+// ignore_for_file: must_be_immutable, unused_local_variable, override_on_non_overriding_member
 
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:lottoproject/config/apitest.dart';
+import 'package:lottoproject/config/config.dart';
 import 'package:lottoproject/model/req/loginReq.dart';
 import 'package:lottoproject/model/res/loginRES.dart';
 import 'package:lottoproject/pages/HomePage.dart';
@@ -11,14 +12,31 @@ import 'package:lottoproject/pages/RegisterPage.dart';
 import 'package:http/http.dart' as http;
 
 //camp is here
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   LoginPage({super.key});
 
-  // String phoneNum = '';
-  // String passWord = '';
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
 
+class _LoginPageState extends State<LoginPage> {
   TextEditingController phoneCtl = TextEditingController();
   TextEditingController passCtl = TextEditingController();
+
+  String server = '';
+
+  @override
+  void initState() {
+    super.initState();
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']);
+        setState(() {
+          server = value['serverAPI'];
+        });
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,25 +129,6 @@ class LoginPage extends StatelessWidget {
   }
 
   void login(BuildContext context) async {
-    // var phone = phoneCtl.text;
-    // var pass = passCtl.text;
-
-    // if(phone == "1" && pass =="1"){
-    //   //   Navigator.push(
-    //   //   context,
-    //   //   MaterialPageRoute(builder: (context) => const HomePage()),
-    //   // );
-
-    //   log('phone number and password match');
-    //   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-
-    // }else if(phone == "0" && pass =="0"){
-    //   log('phone number and password match');
-    //   Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage()));
-    // }else{
-    //   log("failed");
-    // }
-
     var data =
         CustomerLoginPostRequest(phone: phoneCtl.text, password: passCtl.text);
     http
@@ -150,10 +149,11 @@ class LoginPage extends StatelessWidget {
       },
     ).catchError((err) {
       log("gg");
+      log('Sending request to: $SERVER/users/login');
     });
   }
 
-  register(BuildContext context) {
+  void register(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const RegisterPage()),
