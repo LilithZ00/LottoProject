@@ -123,7 +123,7 @@ class LoginPage extends StatelessWidget {
     //   log('phone number and password match');
     //   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
 
-    // }else if(phone == "0" && pass =="0"){
+    // }else if(phone == "0" && psass =="0"){
     //   log('phone number and password match');
     //   Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage()));
     // }else{

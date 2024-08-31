@@ -13,26 +13,30 @@ class LoginRes {
     String userType;
     String userName;
     String phone;
+    String email;
 
     LoginRes({
         required this.userId,
         required this.userType,
         required this.userName,
         required this.phone,
+        required this.email,
     });
 
     factory LoginRes.fromJson(Map<String, dynamic> json) => LoginRes(
         userId: json["user_id"],
         userType: json["user_type"],
         userName: json["user_name"],
-        phone: json["phone"],
+        phone: json["user_phone"],
+        email: json["user_email"],
     );
 
     Map<String, dynamic> toJson() => {
         "user_id": userId,
         "user_type": userType,
         "user_name": userName,
-        "phone": phone,
+        "user_phone": phone,
+        "user_email":email
     };
 }
 //     class login {
