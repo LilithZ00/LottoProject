@@ -129,6 +129,25 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login(BuildContext context) async {
+    // var phone = phoneCtl.text;
+    // var pass = passCtl.text;
+
+    // if(phone == "1" && pass =="1"){
+    //   //   Navigator.push(
+    //   //   context,
+    //   //   MaterialPageRoute(builder: (context) => const HomePage()),
+    //   // );
+
+    //   log('phone number and password match');
+    //   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+
+    // }else if(phone == "0" && psass =="0"){
+    //   log('phone number and password match');
+    //   Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage()));
+    // }else{
+    //   log("failed");
+    // }
+
     var data =
         CustomerLoginPostRequest(phone: phoneCtl.text, password: passCtl.text);
     http

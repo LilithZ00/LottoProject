@@ -15,6 +15,9 @@ class LoginRes {
     String userEmail;
     int userWallet;
     String userType;
+    String userName;
+    String phone;
+    String email;
 
     LoginRes({
         required this.userId,
@@ -23,6 +26,9 @@ class LoginRes {
         required this.userEmail,
         required this.userWallet,
         required this.userType,
+        required this.userName,
+        required this.phone,
+        required this.email,
     });
 
     factory LoginRes.fromJson(Map<String, dynamic> json) => LoginRes(
@@ -32,6 +38,9 @@ class LoginRes {
         userEmail: json["user_email"],
         userWallet: json["user_wallet"],
         userType: json["user_type"],
+        userName: json["user_name"],
+        phone: json["user_phone"],
+        email: json["user_email"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -41,5 +50,8 @@ class LoginRes {
         "user_email": userEmail,
         "user_wallet": userWallet,
         "user_type": userType,
+        "user_name": userName,
+        "user_phone": phone,
+        "user_email":email
     };
 }
