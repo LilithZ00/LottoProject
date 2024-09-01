@@ -1,17 +1,12 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:lottoproject/config/config.dart';
+import 'package:lottoproject/config/apitest.dart';
+import 'package:lottoproject/model/res/registerRes.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 
-class RegisterPage extends StatefulWidget {
+class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
 
-  @override
-  _RegisterPageState createState() => _RegisterPageState();
-}
-
-class _RegisterPageState extends State<RegisterPage> {
   String server = '';
 
   @override
