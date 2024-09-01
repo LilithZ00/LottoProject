@@ -1,8 +1,31 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:lottoproject/config/config.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
+
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  String server = '';
+
+  @override
+  void initState() {
+    super.initState();
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']);
+        setState(() {
+          server = value['serverAPI'];
+        });
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

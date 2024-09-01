@@ -3,7 +3,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:lottoproject/config/apitest.dart';
 import 'package:lottoproject/config/config.dart';
 import 'package:lottoproject/model/req/loginReq.dart';
 import 'package:lottoproject/model/res/loginRES.dart';
