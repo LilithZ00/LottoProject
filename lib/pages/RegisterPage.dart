@@ -1,13 +1,14 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unused_local_variable, prefer_const_constructors
 
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:lottoproject/config/apitest.dart';
+import 'package:lottoproject/config/config.dart';
 import 'package:lottoproject/model/res/registerRes.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/model/req/registerReq.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert'; // ต้องมีการนำเข้าแพ็กเกจนี้เพื่อใช้ jsonDecode
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({super.key});
@@ -25,6 +26,8 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController passwordCtl = TextEditingController();
 
   bool isButtonEnabled = false;
+
+  String server = '';
 
   void checkFieldsFilled() {
     setState(() {
@@ -47,6 +50,15 @@ class _RegisterPageState extends State<RegisterPage> {
     emailCtl.addListener(checkFieldsFilled);
     walletCtl.addListener(checkFieldsFilled);
     passwordCtl.addListener(checkFieldsFilled);
+
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']);
+        setState(() {
+          server = value['serverAPI'];
+        });
+      },
+    );
   }
 
   @override
@@ -176,47 +188,121 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void register(BuildContext context) {
-    var data = RegisterRequset(
-      username: usernameCtl.text,
-      phone: phoneCtl.text,
-      email: emailCtl.text,
-      password: passwordCtl.text,
-      wallet: int.parse(walletCtl.text),
+  var data = RegisterRequset(
+    username: usernameCtl.text,
+    phone: phoneCtl.text,
+    email: emailCtl.text,
+    password: passwordCtl.text,
+    wallet: int.parse(walletCtl.text),
+  );
+
+  if (passwordCtl.text == passCtl.text) {
+    http.get(
+      Uri.parse('$server/shows'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+    ).then((response) {
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+
+        if (responseData is List) {
+          bool isPhoneNumberMatched = false;
+
+          for (var item in responseData) {
+            if (item is Map && item.containsKey('user_phone')) {
+              var userPhone = item['user_phone'];
+              // log('User Phone: $userPhone');
+
+              if (phoneCtl.text == userPhone) {
+                isPhoneNumberMatched = true;
+                break;
+              }
+            }
+          }
+
+          if (isPhoneNumberMatched) {
+            // แสดง Dialog ว่าเบอร์ซ้ำ
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('เบอร์โทรซ้ำ'),
+                content: Text('เบอร์โทรศัพท์นี้มีอยู่ในระบบแล้ว กรุณาใช้เบอร์อื่น'),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('ปิด'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            );
+          } else {
+            // เบอร์ไม่ซ้ำ ทำการลงทะเบียน
+            http.post(
+              Uri.parse('$server/users/register'),
+              headers: {"Content-Type": "application/json; charset=utf-8"},
+              body: registerRequsetToJson(data),
+            ).then((value) {
+              RegisterRes response = registerResFromJson(value.body);
+              // log(response.message); //log เบอร์โทรทั้งหมด
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(response.message)),
+              );
+
+              // แสดง Dialog ว่าการสมัครสมาชิกเสร็จสิ้น
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('สมัครสมาชิกเสร็จสิ้น'),
+                  content: Text('การสมัครสมาชิกสำเร็จแล้ว'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('ตกลง'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // ปิด Dialog
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }).catchError((err) {
+              log("Error during registration: $err");
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('การลงทะเบียนล้มเหลว')),
+              );
+            });
+          }
+        } else {
+          log('Unexpected data format: $responseData');
+        }
+      } else {
+        log('Failed to load data: ${response.statusCode}');
+      }
+    }).catchError((error) {
+      log('Error: $error');
+    });
+  } else {
+    // แสดงข้อความผิดพลาดหากรหัสผ่านไม่ตรงกัน
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('รหัสผ่านไม่ตรงกัน'),
+        content: Text('กรุณากรอกรหัสผ่านให้ตรงกัน'),
+        actions: <Widget>[
+          TextButton(
+            child: Text('ปิด'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
     );
-
-    if (passwordCtl.text == passCtl.text) {
-      log('match');
-      http
-          .post(
-        Uri.parse('$SERVER/users/register'),
-        headers: {"Content-Type": "application/json; charset=utf-8"},
-        body: registerRequsetToJson(data),
-      )
-          .then((value) {
-        RegisterRes response = registerResFromJson(value.body);
-        log(response.message);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
-
-        
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      }).catchError((err) {
-        log("gg");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('การลงทะเบียนล้มเหลว')),
-        );
-      });
-    } else {
-      log('not match');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('รหัสผ่านไม่ตรงกัน')),
-      );
-    }
   }
+}
 }
