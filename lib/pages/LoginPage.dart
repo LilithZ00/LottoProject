@@ -149,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
       },
     ).catchError((err) {
       log("gg");
-      log('Sending request to: $server/users/login');
+      // log('Sending request to: $server/users/login');
     });
   }
 
