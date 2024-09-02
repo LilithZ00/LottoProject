@@ -10,8 +10,11 @@ import 'package:lottoproject/pages/WalletPage.dart';
 class HomePage extends StatelessWidget {
 
   final int idx;
+ 
 
-  const HomePage({super.key, required this.idx});
+  const HomePage({super.key, 
+  required this.idx,
+});
 
   final int walletBalance = 50;
   final int ticketPrice = 100;
@@ -194,7 +197,7 @@ class HomePage extends StatelessWidget {
                         )),
                   ],
                 ),
-                onPressed: () => wallet(context),
+                onPressed: () => walletpage(context),
               ),
               IconButton(
                 icon: const Column(
@@ -429,10 +432,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  wallet(BuildContext context) {
+  walletpage(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const Walletpage()),
+      MaterialPageRoute(builder: (context) => Walletpage(idx: idx)),
     );
   }
 

@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, unused_local_variable, override_on_non_overriding_member, library_private_types_in_public_api
+// ignore_for_file: must_be_immutable, unused_local_variable, override_on_non_overriding_member, library_private_types_in_public_api, prefer_const_constructors
 
 import 'dart:developer';
 
@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:lottoproject/config/config.dart';
 import 'package:lottoproject/model/req/loginReq.dart';
 import 'package:lottoproject/model/res/loginRES.dart';
+import 'package:lottoproject/pages/AdminPage.dart';
 import 'package:lottoproject/pages/HomePage.dart';
 import 'package:lottoproject/pages/RegisterPage.dart';
 import 'package:http/http.dart' as http;
@@ -132,24 +133,45 @@ class _LoginPageState extends State<LoginPage> {
     var data =
         CustomerLoginPostRequest(phone: phoneCtl.text, password: passCtl.text);
     http
-        .post(Uri.parse('$server/users/login'),
-            headers: {"Content-Type": "application/json; charset=utf-8"},
-            body: customerLoginPostRequestToJson(data))
-        .then(
-      (value) {
-        LoginRes response =
-            loginResFromJson(value.body);
-        log(response.userName);
+    .post(
+      Uri.parse('$server/users/login'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: customerLoginPostRequestToJson(data),
+    )
+    .then((value) {
+      LoginRes response = loginResFromJson(value.body);
+      log('Username: ${response.userName}');
+      
+      // ตรวจสอบประเภทของผู้ใช้
+      if (response.userType == 'a') {
+        // นำทางไปยังหน้า Admin
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => HomePage(
-                  idx: response.userId)), // แก้ไขเป็น ShowtripsPage
+            builder: (context) => AdminPage(), // เปลี่ยนเป็นหน้า Admin
+          ),
         );
-      },
-    ).catchError((err) {
-      log("gg");
-      // log('Sending request to: $server/users/login');
+      } else if (response.userType == 'c') {
+        // นำทางไปยังหน้า User
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(idx: response.userId), // เปลี่ยนเป็นหน้า User
+          ),
+        );
+      } else {
+        // กรณีที่ไม่ตรงกับประเภทผู้ใช้ที่รู้จัก
+        log('Unknown user role: ${response.userType}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unknown user role')),
+        );
+      }
+    })
+    .catchError((error) {
+      log('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed')),
+      );
     });
   }
 
