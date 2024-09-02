@@ -15,7 +15,7 @@ class GetUserReponse {
     String userEmail;
     int userWallet;
     String userType;
-    String userImg;
+    String userImage;
 
     GetUserReponse({
         required this.userId,
@@ -24,7 +24,7 @@ class GetUserReponse {
         required this.userEmail,
         required this.userWallet,
         required this.userType,
-        required this.userImg,
+        required this.userImage,
     });
 
     factory GetUserReponse.fromJson(Map<String, dynamic> json) => GetUserReponse(
@@ -34,7 +34,7 @@ class GetUserReponse {
         userEmail: json["user_email"],
         userWallet: json["user_wallet"],
         userType: json["user_type"],
-        userImg: json["user_image"],
+        userImage: json["user_image"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -44,6 +44,6 @@ class GetUserReponse {
         "user_email": userEmail,
         "user_wallet": userWallet,
         "user_type": userType,
-        "user_image": userImg,
+        "user_image": userImage,
     };
 }
