@@ -432,7 +432,7 @@ class HomePage extends StatelessWidget {
   wallet(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const Walletpage()),
+      MaterialPageRoute(builder: (context) => Walletpage(idx: idx)),
     );
   }
 

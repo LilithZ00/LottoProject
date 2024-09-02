@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 class Walletpage extends StatelessWidget {
-  const Walletpage({super.key});
+
+  final int idx;
+
+  const Walletpage({super.key, required this.idx});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wallet'),
+        title: Text('Index: $idx'),
+        // title: const Text('Wallet'),
       ),
       body: SingleChildScrollView(
         child: Padding(
