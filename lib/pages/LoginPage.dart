@@ -10,6 +10,9 @@ import 'package:lottoproject/pages/AdminPage.dart';
 import 'package:lottoproject/pages/HomePage.dart';
 import 'package:lottoproject/pages/RegisterPage.dart';
 import 'package:http/http.dart' as http;
+// import 'package:lottoproject/shared/app_Data.dart';
+// import 'package:lottoproject/shared/testpro.dart';
+// import 'package:provider/provider.dart';
 
 //camp is here
 class LoginPage extends StatefulWidget {
@@ -22,6 +25,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController phoneCtl = TextEditingController();
   TextEditingController passCtl = TextEditingController();
+
+  // final TextEditingController _idController = TextEditingController();
 
   String server = '';
 
@@ -120,6 +125,35 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
+                // TextField(
+                //   controller: _idController,
+                //   decoration: InputDecoration(labelText: 'Enter User ID'),
+                //   keyboardType: TextInputType.number,
+                // ),
+                // ElevatedButton(
+                //   onPressed: () {
+                //     // เรียก API โดยส่ง id ที่ผู้ใช้กรอก
+                //     int id = int.parse(_idController.text);
+                //     context.read<AppData>().fetchUserProfile(id);
+                //   },
+                //   child: Text('Fetch User Profile'),
+                // ),
+                // Consumer<AppData>(
+                //   builder: (context, appData, child) {
+                //     // ตรวจสอบว่ามีข้อมูลผู้ใช้หรือไม่
+                //     if (appData.user != null) {
+                //       return Column(
+                //         children: [
+                //           Text('User ID: ${appData.user.userId}'),
+                //           Text('User Name: ${appData.user.userName}'),
+                //           Text('User Name: ${appData.user.userImage}'),
+                //         ],
+                //       );
+                //     } else {
+                //       return Text('No data');
+                //     }
+                //   },
+                // ),
               ],
             ),
           ),
@@ -129,19 +163,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login(BuildContext context) async {
-
     var data =
         CustomerLoginPostRequest(phone: phoneCtl.text, password: passCtl.text);
     http
-    .post(
+        .post(
       Uri.parse('$server/users/login'),
       headers: {"Content-Type": "application/json; charset=utf-8"},
       body: customerLoginPostRequestToJson(data),
     )
-    .then((value) {
+        .then((value) {
       LoginRes response = loginResFromJson(value.body);
       log('Username: ${response.userName}');
-      
+
       // ตรวจสอบประเภทของผู้ใช้
       if (response.userType == 'a') {
         // นำทางไปยังหน้า Admin
@@ -156,7 +189,8 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(idx: response.userId), // เปลี่ยนเป็นหน้า User
+            builder: (context) =>
+                HomePage(idx: response.userId), // เปลี่ยนเป็นหน้า User
           ),
         );
       } else {
@@ -166,8 +200,7 @@ class _LoginPageState extends State<LoginPage> {
           SnackBar(content: Text('Unknown user role')),
         );
       }
-    })
-    .catchError((error) {
+    }).catchError((error) {
       log('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed')),

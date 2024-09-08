@@ -1,10 +1,14 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_typing_uninitialized_variables
 
 import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/changeProfile.dart';
+import 'package:lottoproject/shared/app_Data.dart';
+import 'package:provider/provider.dart';
 
 class Profilepage extends StatefulWidget {
-  const Profilepage({super.key});
+  final idx;
+
+  const Profilepage({super.key,required this.idx});
 
   @override
   State<Profilepage> createState() => _ProfilepagStateState();
@@ -26,111 +30,94 @@ class _ProfilepagStateState extends State<Profilepage> {
         title: Text('Profile'),
       ),
       body: SingleChildScrollView(
-        child: FutureBuilder(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.hasError) {
+        child: Consumer<AppData>(
+          builder: (context, appData, child) {
+            if (appData.user.userId != widget.idx) {
               return Center(
-                child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'),
+                child: Text('User data not available'),
               );
             }
 
-            return SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: 200,
-                    height:
-                        200, // กำหนดความสูงให้เท่ากับความกว้างเพื่อทำให้เป็นวงกลม
-                    child: ClipOval(
-                      child: Image.network(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOevN26UVJ1eOIeCHmqAnskc56YuTg01tDZw&s',
-                        fit: BoxFit.cover,
+            return Column(
+              children: [
+                SizedBox(
+                  width: 200,
+                  height: 200,
+                  child: ClipOval(
+                    child: Image.network(
+                       appData.user.userImage,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 25),
+                Card(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  elevation: 4,
+                  child: Container(
+                    width: 350,
+                    height: 320,
+                    padding: EdgeInsets.all(16),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Username'),
+                                TextField(
+                                  controller: TextEditingController(text: appData.user.userName), // ใช้ข้อมูลจาก provider
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 15),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Phone'),
+                                TextField(
+                                  controller: TextEditingController(text: appData.user.userPhone), // ใช้ข้อมูลจาก provider
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 15),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('E-mail'),
+                                TextField(
+                                  controller: TextEditingController(text: appData.user.userEmail), // ใช้ข้อมูลจาก provider
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 15),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Center(
+                              child: FilledButton(
+                                onPressed: update,
+                                child: const Text('Update'),
+                              ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 25),
-                  Card(
-                    color: const Color.fromARGB(
-                        255, 255, 255, 255), // ตั้งค่าสีพื้นหลัง
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5), // ทำให้ขอบโค้งมน
-                    ),
-                    elevation: 4, // ความสูงของเงา
-                    child: Container(
-                      width: 350, // กำหนดความกว้าง
-                      height: 320, // กำหนดความสูง
-                      padding: EdgeInsets.all(16), // ระยะห่างด้านใน
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Username'),
-                                  TextField(
-                                      // controller: fullnameCtl,
-                                      )
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Phone'),
-                                  TextField(
-                                      // controller: fullnameCtl,
-                                      )
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('E-mail'),
-                                  TextField(
-                                      // controller: fullnameCtl,
-                                      )
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Center(
-                                child: FilledButton(
-                                  onPressed: update,
-                                  child: const Text('เเก้ไข'),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         ),
@@ -138,7 +125,10 @@ class _ProfilepagStateState extends State<Profilepage> {
     );
   }
 
-  Future<void> loadDataAsync() async {}
+  Future<void> loadDataAsync() async {
+    // เรียกใช้ fetchUserProfile จาก Provider
+    await Provider.of<AppData>(context, listen: false).fetchUserProfile(widget.idx);
+  }
 
   void update() async {
     Navigator.push(
