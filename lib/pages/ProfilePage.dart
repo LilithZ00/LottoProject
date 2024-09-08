@@ -65,7 +65,7 @@ class _ProfilepagStateState extends State<Profilepage> {
                     elevation: 4, // ความสูงของเงา
                     child: Container(
                       width: 350, // กำหนดความกว้าง
-                      height: 450, // กำหนดความสูง
+                      height: 320, // กำหนดความสูง
                       padding: EdgeInsets.all(16), // ระยะห่างด้านใน
                       child: SingleChildScrollView(
                         child: Column(
@@ -106,21 +106,6 @@ class _ProfilepagStateState extends State<Profilepage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text('E-mail'),
-                                  TextField(
-                                      // controller: fullnameCtl,
-                                      )
-                                ],
-                              ),
-                            ),
-                             SizedBox(
-                              height: 15,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('image'),
                                   TextField(
                                       // controller: fullnameCtl,
                                       )
