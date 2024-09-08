@@ -456,7 +456,7 @@ class HomePage extends StatelessWidget {
   profile(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const Profilepage()),
+      MaterialPageRoute(builder: (context) => Profilepage(idx: idx)),
     );
   }
 }
