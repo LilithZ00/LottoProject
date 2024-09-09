@@ -12,7 +12,6 @@ class LoginRes {
     int userId;
     String userType;
     String userName;
-    String phone;
     String email;
 
 
@@ -20,7 +19,6 @@ class LoginRes {
         required this.userId,
         required this.userType,
         required this.userName,
-        required this.phone,
         required this.email,
 
     });
@@ -29,7 +27,6 @@ class LoginRes {
         userId: json["user_id"],
         userType: json["user_type"],
         userName: json["user_name"],
-        phone: json["user_phone"],
         email: json["user_email"],
 
     );
@@ -38,7 +35,6 @@ class LoginRes {
         "user_id": userId,
         "user_type": userType,
         "user_name": userName,
-        "user_phone": phone,
         "user_email":email,
 
     };

@@ -13,6 +13,9 @@ import 'package:http/http.dart' as http;
 // import 'package:lottoproject/shared/app_Data.dart';
 // import 'package:lottoproject/shared/testpro.dart';
 // import 'package:provider/provider.dart';
+// import 'package:lottoproject/shared/app_Data.dart';
+// import 'package:lottoproject/shared/testpro.dart';
+// import 'package:provider/provider.dart';
 
 //camp is here
 class LoginPage extends StatefulWidget {
@@ -65,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 50),
                 TextField(
                   controller: phoneCtl,
+                  // keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: 'Phone',
                     labelStyle: TextStyle(color: Colors.black),
@@ -201,6 +205,9 @@ class _LoginPageState extends State<LoginPage> {
       }
     }).catchError((error) {
       log('Error: $error');
+      log(phoneCtl.text);
+      log(passCtl.text);
+      log('$server/users/login');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed')),
       );
