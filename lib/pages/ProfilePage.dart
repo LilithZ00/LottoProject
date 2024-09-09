@@ -84,7 +84,7 @@ class _ProfilepagStateState extends State<Profilepage> {
                               children: [
                                 const Text('Phone'),
                                 TextField(
-                                  controller: TextEditingController(text: appData.user.userPhone), // ใช้ข้อมูลจาก provider
+                                  controller: TextEditingController(text: appData.user.userType), // ใช้ข้อมูลจาก provider
                                 )
                               ],
                             ),
