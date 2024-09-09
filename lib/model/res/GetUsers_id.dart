@@ -11,7 +11,6 @@ String getUsersToJson(GetUsers data) => json.encode(data.toJson());
 class GetUsers {
     int userId;
     String userName;
-    String userPhone;
     String userEmail;
     int userWallet;
     String userType;
@@ -20,7 +19,6 @@ class GetUsers {
     GetUsers({
         required this.userId,
         required this.userName,
-        required this.userPhone,
         required this.userEmail,
         required this.userWallet,
         required this.userType,
@@ -30,7 +28,6 @@ class GetUsers {
     factory GetUsers.fromJson(Map<String, dynamic> json) => GetUsers(
         userId: json["user_id"],
         userName: json["user_name"],
-        userPhone: json["user_phone"],
         userEmail: json["user_email"],
         userWallet: json["user_wallet"],
         userType: json["user_type"],
@@ -40,7 +37,6 @@ class GetUsers {
     Map<String, dynamic> toJson() => {
         "user_id": userId,
         "user_name": userName,
-        "user_phone": userPhone,
         "user_email": userEmail,
         "user_wallet": userWallet,
         "user_type": userType,
