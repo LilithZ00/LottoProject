@@ -202,6 +202,9 @@ class _LoginPageState extends State<LoginPage> {
       }
     }).catchError((error) {
       log('Error: $error');
+      log(phoneCtl.text);
+      log(passCtl.text);
+      log('$server/users/login');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed')),
       );
