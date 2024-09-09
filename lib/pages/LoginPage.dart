@@ -10,9 +10,9 @@ import 'package:lottoproject/pages/AdminPage.dart';
 import 'package:lottoproject/pages/HomePage.dart';
 import 'package:lottoproject/pages/RegisterPage.dart';
 import 'package:http/http.dart' as http;
-import 'package:lottoproject/shared/app_Data.dart';
-import 'package:lottoproject/shared/testpro.dart';
-import 'package:provider/provider.dart';
+// import 'package:lottoproject/shared/app_Data.dart';
+// import 'package:lottoproject/shared/testpro.dart';
+// import 'package:provider/provider.dart';
 
 //camp is here
 class LoginPage extends StatefulWidget {
@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController phoneCtl = TextEditingController();
   TextEditingController passCtl = TextEditingController();
 
-  final TextEditingController _idController = TextEditingController();
+  // final TextEditingController _idController = TextEditingController();
 
   String server = '';
 
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 50),
                 TextField(
                   controller: phoneCtl,
-                  keyboardType: TextInputType.number,
+                  // keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: 'Phone',
                     labelStyle: TextStyle(color: Colors.black),
@@ -125,35 +125,35 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-                TextField(
-                  controller: _idController,
-                  decoration: InputDecoration(labelText: 'Enter User ID'),
-                  keyboardType: TextInputType.number,
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // เรียก API โดยส่ง id ที่ผู้ใช้กรอก
-                    int id = int.parse(_idController.text);
-                    context.read<AppData>().fetchUserProfile(id);
-                  },
-                  child: Text('Fetch User Profile'),
-                ),
-                Consumer<AppData>(
-                  builder: (context, appData, child) {
-                    // ตรวจสอบว่ามีข้อมูลผู้ใช้หรือไม่
-                    if (appData.user != null) {
-                      return Column(
-                        children: [
-                          Text('User ID: ${appData.user.userId}'),
-                          Text('User Name: ${appData.user.userName}'),
-                          Text('User Name: ${appData.user.userImage}'),
-                        ],
-                      );
-                    } else {
-                      return Text('No data');
-                    }
-                  },
-                ),
+                // TextField(
+                //   controller: _idController,
+                //   decoration: InputDecoration(labelText: 'Enter User ID'),
+                //   keyboardType: TextInputType.number,
+                // ),
+                // ElevatedButton(
+                //   onPressed: () {
+                //     // เรียก API โดยส่ง id ที่ผู้ใช้กรอก
+                //     int id = int.parse(_idController.text);
+                //     context.read<AppData>().fetchUserProfile(id);
+                //   },
+                //   child: Text('Fetch User Profile'),
+                // ),
+                // Consumer<AppData>(
+                //   builder: (context, appData, child) {
+                //     // ตรวจสอบว่ามีข้อมูลผู้ใช้หรือไม่
+                //     if (appData.user != null) {
+                //       return Column(
+                //         children: [
+                //           Text('User ID: ${appData.user.userId}'),
+                //           Text('User Name: ${appData.user.userName}'),
+                //           Text('User Name: ${appData.user.userImage}'),
+                //         ],
+                //       );
+                //     } else {
+                //       return Text('No data');
+                //     }
+                //   },
+                // ),
               ],
             ),
           ),
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void login(BuildContext context) async {
     var data =
-        CustomerLoginPostRequest(phone: phoneCtl.text, password: passCtl.text);
+        CustomerLoginPostRequest(email: phoneCtl.text, password: passCtl.text);
     http
         .post(
       Uri.parse('$server/users/login'),
