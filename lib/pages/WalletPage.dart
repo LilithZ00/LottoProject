@@ -24,9 +24,8 @@ class _WalletpageState extends State<Walletpage> {
   String server = '';
   String url = '';
   List<GetUserReponse> user = [];
-  int selectedAmount = 0; // Track the selected amount
+  int selectedAmount = 0;
 
-  // Reference to the "Top-up" dialog
   late BuildContext topUpDialogContext;
 
   GetUserReponse getUserReponseFromJson(String str) {
@@ -72,7 +71,7 @@ class _WalletpageState extends State<Walletpage> {
   }
 
   Future<void> topupAmount(int amount) async {
-    // Show the loading dialog
+    // loading...
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -103,10 +102,7 @@ class _WalletpageState extends State<Walletpage> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         log('Topup successful');
 
-        // Close the loading dialog
         Navigator.of(context).pop();
-
-        // Show the success dialog and refresh data after it is dismissed
         await _confirmTopup(context, refreshData);
       } else {
         log('Topup failed: ${response.statusCode}');
@@ -114,14 +110,12 @@ class _WalletpageState extends State<Walletpage> {
       }
     } catch (error) {
       log('Error: $error');
-
-      // Close the loading dialog
       Navigator.of(context).pop();
     }
   }
 
-  Future<void> _confirmTopup(BuildContext context, Future<void> Function() onDismiss) {
-    // Close the "Top-up" dialog if it's open
+  Future<void> _confirmTopup(
+      BuildContext context, Future<void> Function() onDismiss) {
     Navigator.of(topUpDialogContext).pop();
 
     return showDialog(
@@ -138,7 +132,8 @@ class _WalletpageState extends State<Walletpage> {
           ),
         );
       },
-    ).then((_) => onDismiss()); // Call the refreshData callback after the dialog is dismissed
+    ).then((_) =>
+        onDismiss()); // Call the refreshData callback after the dialog is dismissed
   }
 
   Future<void> refreshData() async {
@@ -147,7 +142,134 @@ class _WalletpageState extends State<Walletpage> {
   }
 
   void withdraw(BuildContext context) {
-    // Implement withdraw functionality here
+    TextEditingController amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('ถอนเงิน'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('กรุณาใส่จำนวนเงินที่ต้องการถอน'),
+              const SizedBox(height: 10),
+              TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'จำนวนเงิน',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('ยกเลิก'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                int amount = int.tryParse(amountController.text) ?? 0;
+                if (amount <= 0) {
+                  showErrorDialog(context, 'กรุณาใส่จำนวนเงินที่ถูกต้อง');
+                } else if (amount > user[0].userWallet) {
+                  showErrorDialog(context, 'ยอดเงินไม่เพียงพอ');
+                } else {
+                  await processWithdraw(context, amount);
+                }
+              },
+              child: const Text('ยืนยัน'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> processWithdraw(BuildContext context, int amount) async {
+    //loading...
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 10),
+              Text("กำลังดำเนินการถอนเงิน..."),
+            ],
+          ),
+        );
+      },
+    );
+
+    try {
+      var response = await http.post(
+        Uri.parse('$url/wallet/withdraw'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'userId': widget.idx,
+          'amount': amount,
+        }),
+      );
+
+      Navigator.of(context).pop();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Navigator.of(context).pop();
+        await _confirmWithdrawSuccess(context);
+        await refreshData();
+      } else {
+        showErrorDialog(context, 'การถอนเงินล้มเหลว: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      Navigator.of(context).pop();
+      showErrorDialog(context, 'เกิดข้อผิดพลาด: $error');
+    }
+  }
+
+  Future<void> _confirmWithdrawSuccess(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check, color: Colors.green, size: 50),
+              SizedBox(height: 10),
+              Text("การถอนเงินสำเร็จ"),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('เกิดข้อผิดพลาด'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('ตกลง'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -298,9 +420,8 @@ class _WalletpageState extends State<Walletpage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        // Save the context of this dialog
         topUpDialogContext = context;
-        
+
         return AlertDialog(
           title: const Text('เติมเงิน'),
           content: SizedBox(
