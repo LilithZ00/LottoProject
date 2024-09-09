@@ -65,7 +65,6 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 50),
                 TextField(
                   controller: phoneCtl,
-                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: 'Phone',
                     labelStyle: TextStyle(color: Colors.black),
@@ -164,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void login(BuildContext context) async {
     var data =
-        CustomerLoginPostRequest(phone: phoneCtl.text, password: passCtl.text);
+        CustomerLoginPostRequest(email: phoneCtl.text, password: passCtl.text);
     http
         .post(
       Uri.parse('$server/users/login'),
