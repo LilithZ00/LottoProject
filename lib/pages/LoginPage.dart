@@ -65,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 50),
                 TextField(
                   controller: phoneCtl,
+                  // keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: 'Phone',
                     labelStyle: TextStyle(color: Colors.black),
@@ -201,6 +202,9 @@ class _LoginPageState extends State<LoginPage> {
       }
     }).catchError((error) {
       log('Error: $error');
+      log(phoneCtl.text);
+      log(passCtl.text);
+      log('$server/users/login');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed')),
       );
