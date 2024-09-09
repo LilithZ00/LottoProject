@@ -4,9 +4,10 @@ import 'package:lottoproject/shared/app_Data.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (context) => AppData())
-  ],child: const MyApp()));
+  runApp(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (context) => AppData())],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',  
+      title: 'Flutter Demo',
       home: LoginPage(),
     );
   }
