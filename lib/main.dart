@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/shared/app_Data.dart';
 import 'package:provider/provider.dart';
-import 'package:lottoproject/shared/app_Data.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   runApp(MultiProvider(
