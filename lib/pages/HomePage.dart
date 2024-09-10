@@ -1,6 +1,8 @@
 // ignore: file_names
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:lottoproject/config/config.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/pages/ChackLottoPage.dart';
 import 'package:lottoproject/pages/MylottoPage.dart';
@@ -8,6 +10,7 @@ import 'package:lottoproject/pages/ProfilePage.dart';
 import 'package:lottoproject/pages/WalletPage.dart';
 import 'package:lottoproject/shared/app_Data.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   final int idx;
@@ -23,12 +26,24 @@ class _HomePageState extends State<HomePage> {
   final int ticketPrice = 100;
 
   late Future<void> loadData;
+  late Future<void> loadLotto;
 
+  String server = '';
 
   @override
   void initState() {
     super.initState();
     loadData = loadDataAsync();
+    loadLotto = showlotto();
+
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']);
+        setState(() {
+          server = value['serverAPI'];
+        });
+      },
+    );
   }
 
   @override
@@ -40,53 +55,59 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
-        title: Consumer<AppData>(
-          builder: (context, appData, child) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () => profile(context),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(appData.user.userImage),
-                    backgroundColor: Colors.grey,
-                    radius: 20,
-                  ),
-                ),
-                const Text(
-                  'LOTTO',
-                  style: TextStyle(
-                    color: Colors.purple,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '${appData.user.userWallet} บาท',
-                  style: const TextStyle(
-                    color: Colors.purple,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-      
-        body: SingleChildScrollView(
-          child: Consumer<AppData>(
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
+          title: Consumer<AppData>(
             builder: (context, appData, child) {
-              if (appData.user.userId != widget.idx) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => profile(context),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(appData.user.userImage),
+                      backgroundColor: Colors.grey,
+                      radius: 20,
+                    ),
+                  ),
+                  const Text(
+                    'LOTTO',
+                    style: TextStyle(
+                      color: Colors.purple,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${appData.user.userWallet} บาท',
+                    style: const TextStyle(
+                      color: Colors.purple,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: FutureBuilder(
+            future: loadLotto,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
                 return const Center(
-                  child: Text('User data not available'),
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'),
                 );
               }
               return Column(
                 children: [
+                  const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
@@ -115,7 +136,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 16.0),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6, // Adjust height
+                    height: MediaQuery.of(context).size.height *
+                        0.6, // Adjust height
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       itemCount: 10, // จำนวนเลขที่แสดง
@@ -140,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    generateRandomNumber(),
+                                    data.data.lottoNumber,
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -262,55 +284,56 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> showSignOutPopup(BuildContext context) async {
     return await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "คุณต้องการออกจากระบบใช่หรือไม่",
-                style: TextStyle(fontSize: 15),
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "คุณต้องการออกจากระบบใช่หรือไม่",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.green[400],
-                  ),
-                  child: const Text(
-                    "ตกลง",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                      (Route<dynamic> route) => false,
-                    );
-                  },
-                ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red[400],
-                  ),
-                  child: const Text(
-                    "ยกเลิก",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.green[400],
+                      ),
+                      child: const Text(
+                        "ตกลง",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.red[400],
+                      ),
+                      child: const Text(
+                        "ยกเลิก",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ],
-        );
-      },
-    ) ?? false;
+            );
+          },
+        ) ??
+        false;
   }
 
   void suresingout(BuildContext context) {
@@ -494,7 +517,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> loadDataAsync() async {
-  await Provider.of<AppData>(context, listen: false).fetchUserProfile(widget.idx);
-}
+    await Provider.of<AppData>(context, listen: false)
+        .fetchUserProfile(widget.idx);
+  }
 
+  Future<void> showlotto() async {
+    var response = await http.get(
+      Uri.parse('$server/lotto/'),
+    );
+      var data = json.decode(response.body);
+   
+  }
 }
