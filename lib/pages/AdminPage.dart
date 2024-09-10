@@ -298,5 +298,6 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   void randomlotto() {
+    
   }
 }
