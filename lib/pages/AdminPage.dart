@@ -201,6 +201,18 @@ class _AdminPageState extends State<AdminPage> {
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
+               const SizedBox(height: 10),
+                ElevatedButton(
+                onPressed: randomlotto,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 0, 0, 0),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                ),
+                child: const Text(
+                  'สุ่มเลขออกขาย',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: showResetDialog,
@@ -283,5 +295,8 @@ class _AdminPageState extends State<AdminPage> {
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
+  }
+
+  void randomlotto() {
   }
 }
