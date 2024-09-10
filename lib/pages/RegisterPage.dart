@@ -20,36 +20,18 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   TextEditingController usernameCtl = TextEditingController();
   TextEditingController passCtl = TextEditingController();
-  TextEditingController phoneCtl = TextEditingController();
   TextEditingController emailCtl = TextEditingController();
   TextEditingController walletCtl = TextEditingController();
   TextEditingController passwordCtl = TextEditingController();
 
   bool isButtonEnabled = false;
+  bool isLoading = false; // เพิ่มสถานะ isLoading
 
   String server = '';
-
-  void checkFieldsFilled() {
-    setState(() {
-      isButtonEnabled = usernameCtl.text.isNotEmpty &&
-          passCtl.text.isNotEmpty &&
-          phoneCtl.text.isNotEmpty &&
-          emailCtl.text.isNotEmpty &&
-          walletCtl.text.isNotEmpty &&
-          passwordCtl.text.isNotEmpty;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-
-    usernameCtl.addListener(checkFieldsFilled);
-    passCtl.addListener(checkFieldsFilled);
-    phoneCtl.addListener(checkFieldsFilled);
-    emailCtl.addListener(checkFieldsFilled);
-    walletCtl.addListener(checkFieldsFilled);
-    passwordCtl.addListener(checkFieldsFilled);
 
     Config.getConfig().then(
       (value) {
@@ -59,17 +41,6 @@ class _RegisterPageState extends State<RegisterPage> {
         });
       },
     );
-  }
-
-  @override
-  void dispose() {
-    usernameCtl.dispose();
-    passCtl.dispose();
-    phoneCtl.dispose();
-    emailCtl.dispose();
-    walletCtl.dispose();
-    passwordCtl.dispose();
-    super.dispose();
   }
 
   @override
@@ -89,20 +60,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: usernameCtl,
                 decoration: const InputDecoration(
                   labelText: 'Username',
-                  filled: true,
-                  fillColor: Color(0xFFF0ECF6),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: phoneCtl,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'Phone',
                   filled: true,
                   fillColor: Color(0xFFF0ECF6),
                   border: OutlineInputBorder(
@@ -153,23 +110,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: walletCtl,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'Wallet',
-                  filled: true,
-                  fillColor: Color(0xFFF0ECF6),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
               const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: isButtonEnabled ? () => register(context) : null,
+                onPressed: () {
+                  register(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF5F0FF),
                   shape: RoundedRectangleBorder(
@@ -178,7 +123,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 40.0, vertical: 15.0),
                 ),
-                child: const Text('สมัครสมาชิก'),
+                child: isLoading
+                    ? CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+                      )
+                    : const Text('สมัครสมาชิก'),
               ),
             ],
           ),
@@ -188,121 +137,162 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void register(BuildContext context) {
-  var data = RegisterRequset(
-    username: usernameCtl.text,
-    phone: phoneCtl.text,
-    email: emailCtl.text,
-    password: passwordCtl.text,
-    wallet: int.parse(walletCtl.text),
-  );
+    if (usernameCtl.text.isEmpty ||
+        emailCtl.text.isEmpty ||
+        passwordCtl.text.isEmpty ||
+        passCtl.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('ข้อมูลไม่ครบ'),
+          content: Text('กรุณากรอกข้อมูลให้ครบทุกช่อง'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('ปิด'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+      return; // หยุดการทำงานต่อถ้าข้อมูลไม่ครบ
+    }
 
-  if (passwordCtl.text == passCtl.text) {
-    http.get(
-      Uri.parse('$server/shows'),
-      headers: {"Content-Type": "application/json; charset=utf-8"},
-    ).then((response) {
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
+    setState(() {
+      isLoading = true; // เริ่มการโหลด
+    });
 
-        if (responseData is List) {
-          bool isPhoneNumberMatched = false;
+    var data = RegisterRequset(
+      username: usernameCtl.text,
+      email: emailCtl.text,
+      password: passwordCtl.text,
+    );
 
-          for (var item in responseData) {
-            if (item is Map && item.containsKey('user_phone')) {
-              var userPhone = item['user_phone'];
-              // log('User Phone: $userPhone');
+    if (passwordCtl.text == passCtl.text) {
+      http.get(
+        Uri.parse('$server/shows'),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      ).then((response) {
+        if (response.statusCode == 200) {
+          var responseData = jsonDecode(response.body);
 
-              if (phoneCtl.text == userPhone) {
-                isPhoneNumberMatched = true;
-                break;
+          if (responseData is List) {
+            bool isEmailMatched = false;
+
+            for (var item in responseData) {
+              if (item is Map && item.containsKey('user_email')) {
+                var userEmail = item['user_email'];
+
+                if (emailCtl.text == userEmail) {
+                  isEmailMatched = true;
+                  break;
+                }
               }
             }
-          }
 
-          if (isPhoneNumberMatched) {
-            // แสดง Dialog ว่าเบอร์ซ้ำ
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text('เบอร์โทรซ้ำ'),
-                content: Text('เบอร์โทรศัพท์นี้มีอยู่ในระบบแล้ว กรุณาใช้เบอร์อื่น'),
-                actions: <Widget>[
-                  TextButton(
-                    child: Text('ปิด'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-            );
-          } else {
-            // เบอร์ไม่ซ้ำ ทำการลงทะเบียน
-            http.post(
-              Uri.parse('$server/users/register'),
-              headers: {"Content-Type": "application/json; charset=utf-8"},
-              body: registerRequsetToJson(data),
-            ).then((value) {
-              RegisterRes response = registerResFromJson(value.body);
-              // log(response.message); //log เบอร์โทรทั้งหมด
+            if (isEmailMatched) {
+              setState(() {
+                isLoading = false; // หยุดการโหลด
+              });
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(response.message)),
-              );
-
-              // แสดง Dialog ว่าการสมัครสมาชิกเสร็จสิ้น
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text('สมัครสมาชิกเสร็จสิ้น'),
-                  content: Text('การสมัครสมาชิกสำเร็จแล้ว'),
+                  title: Text('อีเมลล์ซ้ำ'),
+                  content: Text('อีเมลล์นี้มีอยู่ในระบบแล้ว กรุณาใช้อีเมลล์อื่น'),
                   actions: <Widget>[
                     TextButton(
-                      child: Text('ตกลง'),
+                      child: Text('ปิด'),
                       onPressed: () {
-                        Navigator.of(context).pop(); // ปิด Dialog
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
+                        Navigator.of(context).pop();
                       },
                     ),
                   ],
                 ),
               );
-            }).catchError((err) {
-              log("Error during registration: $err");
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('การลงทะเบียนล้มเหลว')),
-              );
-            });
+            } else {
+              http
+                  .post(
+                Uri.parse('$server/users/register'),
+                headers: {"Content-Type": "application/json; charset=utf-8"},
+                body: registerRequsetToJson(data),
+              )
+                  .then((value) {
+                RegisterRes response = registerResFromJson(value.body);
+
+                setState(() {
+                  isLoading = false; // หยุดการโหลด
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(response.message)),
+                );
+
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('สมัครสมาชิกเสร็จสิ้น'),
+                    content: Text('การสมัครสมาชิกสำเร็จแล้ว'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text('ตกลง'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }).catchError((err) {
+                setState(() {
+                  isLoading = false; // หยุดการโหลด
+                });
+
+                log("Error during registration: $err");
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('การลงทะเบียนล้มเหลว')),
+                );
+              });
+            }
+          } else {
+            log('Unexpected data format: $responseData');
           }
         } else {
-          log('Unexpected data format: $responseData');
+          log('Failed to load data: ${response.statusCode}');
         }
-      } else {
-        log('Failed to load data: ${response.statusCode}');
-      }
-    }).catchError((error) {
-      log('Error: $error');
-    });
-  } else {
-    // แสดงข้อความผิดพลาดหากรหัสผ่านไม่ตรงกัน
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('รหัสผ่านไม่ตรงกัน'),
-        content: Text('กรุณากรอกรหัสผ่านให้ตรงกัน'),
-        actions: <Widget>[
-          TextButton(
-            child: Text('ปิด'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
-    );
+      }).catchError((error) {
+        setState(() {
+          isLoading = false; // หยุดการโหลด
+        });
+
+        log('Error: $error');
+      });
+    } else {
+      setState(() {
+        isLoading = false; // หยุดการโหลด
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('รหัสผ่านไม่ตรงกัน'),
+          content: Text('กรุณากรอกรหัสผ่านให้ตรงกัน'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('ปิด'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
-}
 }
