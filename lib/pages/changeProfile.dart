@@ -166,6 +166,29 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
   }
 
   void updateProfile() async {
+  try {
+    // ตรวจสอบว่าฟิลด์ไม่ว่างเปล่า
+    if (nameController.text.isEmpty || imgController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('เกิดข้อผิดพลาด'),
+            content: Text('กรุณากรอกข้อมูลให้ครบถ้วน'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // ปิดป๊อปอัป
+                },
+                child: Text('ตกลง'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     // เตรียมข้อมูลที่จะส่ง
     var data = UpDateUserId(
       name: nameController.text, 
@@ -180,7 +203,7 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
     );
 
     // ตรวจสอบสถานะการตอบกลับจากเซิร์ฟเวอร์
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       // แสดงป๊อปอัปแจ้งเตือนสำเร็จ
       showDialog(
         context: context,
@@ -192,7 +215,7 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(); // ปิดป๊อปอัป
-                  Navigator.pop(context); // กลับไปหน้า Profile
+                  Navigator.of(context).pop(true); // กลับไปหน้า Profile และส่งข้อมูลกลับ
                 },
                 child: Text('ตกลง'),
               ),
@@ -201,9 +224,8 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
         },
       );
     } else {
-      log('$server/update/${widget.idx}');
-      log(nameController.text);
-      log(imgController.text);
+      log('Error: ${response.statusCode}'); // บันทึกสถานะข้อผิดพลาด
+
       // หากเกิดข้อผิดพลาด แสดงข้อความแจ้งเตือน
       showDialog(
         context: context,
@@ -223,5 +245,28 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
         },
       );
     }
-  } 
+  } catch (error) {
+    log('Error: $error'); // บันทึกข้อผิดพลาด
+
+    // จัดการข้อผิดพลาดเมื่อไม่สามารถส่งข้อมูลได้
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('เกิดข้อผิดพลาด'),
+          content: Text('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // ปิดป๊อปอัป
+              },
+              child: Text('ตกลง'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 }

@@ -65,7 +65,7 @@ class _ProfilepagStateState extends State<Profilepage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildProfileField('Username', appData.user.userName),
-                          Divider(),//เส้นใต้
+                          Divider(),
                           _buildProfileField('Email', appData.user.userEmail),
                           Divider(),
                           _buildProfileField('Wallet', appData.user.userWallet.toString()),
@@ -74,7 +74,20 @@ class _ProfilepagStateState extends State<Profilepage> {
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             child: Center(
                               child: FilledButton(
-                                onPressed: update,
+                                onPressed: () async {
+                                  bool? result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => changeProfilepage(idx: widget.idx),
+                                    ),
+                                  );
+                                  if (result == true) {
+                                    // รีเฟรชข้อมูล
+                                    setState(() {
+                                      loadData = loadDataAsync();
+                                    });
+                                  }
+                                },
                                 child: const Text('Update'),
                               ),
                             ),
