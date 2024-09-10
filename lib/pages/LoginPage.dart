@@ -25,10 +25,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController phoneCtl = TextEditingController();
   TextEditingController passCtl = TextEditingController();
-
-  // final TextEditingController _idController = TextEditingController();
-
   String server = '';
+  bool _isLoading = false; // To track loading state
 
   @override
   void initState() {
@@ -57,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                 const Text(
                   'Lotto',
                   style: TextStyle(
-                    fontFamily: 'Lobster', // fontstyle
+                    fontFamily: 'Lobster',
                     fontSize: 48,
                     color: Colors.purple,
                   ),
@@ -65,14 +63,12 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 50),
                 TextField(
                   controller: phoneCtl,
-                  // keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Phone',
+                    labelText: 'Email',
                     labelStyle: TextStyle(color: Colors.black),
                     fillColor: Color(0xFFF0ECF6),
                     border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.all(Radius.circular(30.0)), //ขอบมน
+                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
                     ),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
@@ -94,66 +90,44 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => login(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 135, 0, 173),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
+                if (_isLoading) ...[
+                  CircularProgressIndicator(),
+                  const SizedBox(height: 10),
+                  const Text("กำลังโหลด..."),
+                ] else ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => login(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 135, 0, 173),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 10.0),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 10.0),
-                      ),
-                      child: const Text(
-                        'เข้าสู่ระบบ',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => register(context),
-                      child: const Text(
-                        'สมัครสมาชิก',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline, // เส้นใต้
-                          decorationColor: Colors.blue,
+                        child: const Text(
+                          'เข้าสู่ระบบ',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                // TextField(
-                //   controller: _idController,
-                //   decoration: InputDecoration(labelText: 'Enter User ID'),
-                //   keyboardType: TextInputType.number,
-                // ),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     // เรียก API โดยส่ง id ที่ผู้ใช้กรอก
-                //     int id = int.parse(_idController.text);
-                //     context.read<AppData>().fetchUserProfile(id);
-                //   },
-                //   child: Text('Fetch User Profile'),
-                // ),
-                // Consumer<AppData>(
-                //   builder: (context, appData, child) {
-                //     // ตรวจสอบว่ามีข้อมูลผู้ใช้หรือไม่
-                //     if (appData.user != null) {
-                //       return Column(
-                //         children: [
-                //           Text('User ID: ${appData.user.userId}'),
-                //           Text('User Name: ${appData.user.userName}'),
-                //           Text('User Name: ${appData.user.userImage}'),
-                //         ],
-                //       );
-                //     } else {
-                //       return Text('No data');
-                //     }
-                //   },
-                // ),
+                      TextButton(
+                        onPressed: () => register(context),
+                        child: const Text(
+                          'สมัครสมาชิก',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -163,6 +137,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login(BuildContext context) async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
     var data =
         CustomerLoginPostRequest(email: phoneCtl.text, password: passCtl.text);
     http
@@ -175,26 +153,21 @@ class _LoginPageState extends State<LoginPage> {
       LoginRes response = loginResFromJson(value.body);
       log('Username: ${response.userName}');
 
-      // ตรวจสอบประเภทของผู้ใช้
       if (response.userType == 'a') {
-        // นำทางไปยังหน้า Admin
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AdminPage(), // เปลี่ยนเป็นหน้า Admin
+            builder: (context) => AdminPage(),
           ),
         );
       } else if (response.userType == 'c') {
-        // นำทางไปยังหน้า User
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                HomePage(idx: response.userId), // เปลี่ยนเป็นหน้า User
+            builder: (context) => HomePage(idx: response.userId),
           ),
         );
       } else {
-        // กรณีที่ไม่ตรงกับประเภทผู้ใช้ที่รู้จัก
         log('Unknown user role: ${response.userType}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Unknown user role')),
@@ -208,6 +181,10 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed')),
       );
+    }).whenComplete(() {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
     });
   }
 
@@ -218,3 +195,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
