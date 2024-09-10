@@ -1,9 +1,12 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, camel_case_types
+// ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:lottoproject/shared/app_Data.dart';
+import 'package:provider/provider.dart';
 
 class changeProfilepage extends StatefulWidget {
-  const changeProfilepage({super.key});
+  final idx;
+  const changeProfilepage({super.key, required this.idx});
 
   @override
   State<changeProfilepage> createState() => _changeProfilepagStateState();
@@ -11,6 +14,8 @@ class changeProfilepage extends StatefulWidget {
 
 class _changeProfilepagStateState extends State<changeProfilepage> {
   late Future<void> loadData;
+  late TextEditingController nameController;
+  late TextEditingController imgController;
 
   @override
   void initState() {
@@ -19,10 +24,17 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
   }
 
   @override
+  void dispose() {
+    nameController.dispose();
+    imgController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('changeProfile'),
+        title: Text('Change Profile'),
       ),
       body: SingleChildScrollView(
         child: FutureBuilder(
@@ -39,25 +51,30 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
               );
             }
 
+            // เรียกข้อมูลจาก Provider
+            final userData = Provider.of<AppData>(context, listen: false).user;
+
+            // กำหนดค่าที่จะโชว์ใน TextField
+            nameController = TextEditingController(text: userData.userName);
+            imgController = TextEditingController(text: userData.userImage);
+
             return SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Column(
                 children: [
                   SizedBox(
                     width: 200,
-                    height:
-                        200, // กำหนดความสูงให้เท่ากับความกว้างเพื่อทำให้เป็นวงกลม
+                    height: 200, // กำหนดความสูงให้เท่ากับความกว้างเพื่อทำให้เป็นวงกลม
                     child: ClipOval(
                       child: Image.network(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOevN26UVJ1eOIeCHmqAnskc56YuTg01tDZw&s',
+                        userData.userImage,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   SizedBox(height: 25),
                   Card(
-                    color: const Color.fromARGB(
-                        255, 255, 255, 255), // ตั้งค่าสีพื้นหลัง
+                    color: const Color.fromARGB(255, 255, 255, 255), // ตั้งค่าสีพื้นหลัง
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5), // ทำให้ขอบโค้งมน
                     ),
@@ -76,60 +93,38 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
                                 children: [
                                   const Text('Username'),
                                   TextField(
-                                      // controller: fullnameCtl,
-                                      )
+                                    controller: nameController,
+                                  ),
                                 ],
                               ),
                             ),
-                            SizedBox(
-                              height: 15,
-                            ),
+                            SizedBox(height: 15),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Phone'),
+                                  const Text('image'),
                                   TextField(
-                                      // controller: fullnameCtl,
-                                      )
+                                    controller: imgController,
+                                  ),
                                 ],
                               ),
                             ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('E-mail'),
-                                  TextField(
-                                      // controller: fullnameCtl,
-                                      )
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
+                            SizedBox(height: 15),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: Center(
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
                                     FilledButton(
-                                      onPressed: () {
-                                        // ใส่ฟังก์ชันเมื่อกดปุ่มตกลง
-                                      },
+                                      onPressed: updateProfile,
                                       child: const Text('ตกลง'),
                                     ),
                                     FilledButton(
                                       onPressed: () {
-                                        // ใส่ฟังก์ชันเมื่อกดปุ่มยกเลิก
+                                        Navigator.pop(context);
                                       },
                                       child: const Text('ยกเลิก'),
                                     ),
@@ -151,7 +146,20 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
     );
   }
 
-  Future<void> loadDataAsync() async {}
+  Future<void> loadDataAsync() async {
+    await Provider.of<AppData>(context, listen: false).fetchUserProfile(widget.idx);
+  }
 
-  void update() async {}
+  void updateProfile() async {
+    // อัปเดตข้อมูลใหม่จาก TextField ไปยัง Provider
+    // appData.updateUserProfile(
+    //   widget.idx,
+    //   nameController.text,
+    //   phoneController.text,
+    //   emailController.text,
+    // );
+
+    // กลับไปหน้าก่อนหน้า
+    Navigator.pop(context);
+  }
 }
