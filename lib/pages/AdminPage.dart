@@ -1,6 +1,15 @@
+// ignore_for_file: unused_import, prefer_const_constructors, prefer_const_literals_to_create_immutables
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:lottoproject/config/apitest.dart';
+import 'package:lottoproject/config/config.dart';
+import 'package:lottoproject/model/req/InsertLotto.dart';
 import 'dart:math';
+import 'dart:developer' as dl;
 import 'package:lottoproject/pages/LoginPage.dart';
+import 'package:http/http.dart' as http;
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
@@ -10,7 +19,8 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-  List<String> prizeNumbers = List.filled(5, '000000'); // สร้างลิสต์สำหรับเก็บหมายเลขรางวัล
+  List<String> prizeNumbers =
+      List.filled(5, '000000'); // สร้างลิสต์สำหรับเก็บหมายเลขรางวัล
   bool areButtonsDisabled = false; // สถานะปุ่ม
 
   // สร้างเลขสุ่ม 6 หลัก
@@ -95,7 +105,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -116,7 +127,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -143,7 +155,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -164,7 +177,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -181,8 +195,10 @@ class _AdminPageState extends State<AdminPage> {
               ElevatedButton(
                 onPressed: areButtonsDisabled ? null : drawPrizes,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: areButtonsDisabled ? Colors.grey : Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  backgroundColor:
+                      areButtonsDisabled ? Colors.grey : Colors.black,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: const Text(
                   'ออกผลรางวัลจากที่ขายไป',
@@ -193,8 +209,10 @@ class _AdminPageState extends State<AdminPage> {
               ElevatedButton(
                 onPressed: areButtonsDisabled ? null : drawPrizes,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: areButtonsDisabled ? Colors.grey : Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  backgroundColor:
+                      areButtonsDisabled ? Colors.grey : Colors.black,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: const Text(
                   'ออกผลรางวัลจากทั้งหมด',
@@ -218,7 +236,8 @@ class _AdminPageState extends State<AdminPage> {
                 onPressed: showResetDialog,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: const Text(
                   'รีเซ็ตระบบ',
@@ -264,29 +283,85 @@ class _AdminPageState extends State<AdminPage> {
     Navigator.pop(context);
   }
 
+  Future<void> generateRandomNumbers() async {
+    final random = Random();
+    List<String> randomNumbers = [];
+
+    for (int i = 0; i < 100; i++) {
+      String randomNumber = '';
+      for (int j = 0; j < 6; j++) {
+        randomNumber += random.nextInt(10).toString();
+        if (j < 5) {
+          randomNumber += '';
+        }
+      }
+      randomNumbers.add(randomNumber);
+    }
+
+    // Send all the random numbers
+    for (var number in randomNumbers) {
+      var data = InsertLotto(lottoNumber: number);
+
+      try {
+        var response = await http.post(
+          Uri.parse('https://node-api-lotto.vercel.app/lotto/createLotto'),
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: jsonEncode(data.toJson()),
+        );
+
+        if (response.statusCode == 201) {
+        // Show success dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false, // Prevent user from closing dialog
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Row(
+                children: <Widget>[
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  ),
+                  SizedBox(width: 20),
+                  Text('Success!'),
+                ],
+              ),
+            );
+          },
+        );
+      } else {
+          dl.log('gg');
+          // print('Failed to send: $number');
+        }
+      } catch (e) {
+        // print('Error sending: $number. Error: $e');
+      }
+    }
+  }
+
   // ยืนยันการรีเซ็ต
   void showResetDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('รีเซ็ตระบบ'),
-          content: const Text('คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ต?'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('ยกเลิก'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('ตกลง'),
-              onPressed: resetPrizes,
-            ),
-          ],
-        );
-      },
-    );
+    generateRandomNumbers();
+    // showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return AlertDialog(
+    //       title: const Text('รีเซ็ตระบบ'),
+    //       content: const Text('คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ต?'),
+    //       actions: <Widget>[
+    //         TextButton(
+    //           child: const Text('ยกเลิก'),
+    //           onPressed: () {
+    //             Navigator.of(context).pop();
+    //           },
+    //         ),
+    //         TextButton(
+    //           child: const Text('ตกลง'),
+    //           onPressed: resetPrizes,
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
   }
 
   // กลับไปที่หน้า LoginPage
