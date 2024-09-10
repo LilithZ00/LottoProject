@@ -1,8 +1,13 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unused_local_variable, use_build_context_synchronously
+
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:lottoproject/config/config.dart';
+import 'package:lottoproject/model/req/UpDateUser.dart';
 import 'package:lottoproject/shared/app_Data.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class changeProfilepage extends StatefulWidget {
   final idx;
@@ -16,11 +21,21 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
   late Future<void> loadData;
   late TextEditingController nameController;
   late TextEditingController imgController;
+  String server = '';
 
   @override
   void initState() {
     super.initState();
     loadData = loadDataAsync();
+
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']);
+        setState(() {
+          server = value['serverAPI'];
+        });
+      },
+    );
   }
 
   @override
@@ -151,15 +166,62 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
   }
 
   void updateProfile() async {
-    // อัปเดตข้อมูลใหม่จาก TextField ไปยัง Provider
-    // appData.updateUserProfile(
-    //   widget.idx,
-    //   nameController.text,
-    //   phoneController.text,
-    //   emailController.text,
-    // );
+    // เตรียมข้อมูลที่จะส่ง
+    var data = UpDateUserId(
+      name: nameController.text, 
+      image: imgController.text,
+    );
 
-    // กลับไปหน้าก่อนหน้า
-    Navigator.pop(context);
-  }
+    // ส่งคำขอ HTTP PUT ไปยังเซิร์ฟเวอร์
+    final response = await http.put(
+      Uri.parse('$server/profile/update/${widget.idx}'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: upDateUserIdToJson(data),
+    );
+
+    // ตรวจสอบสถานะการตอบกลับจากเซิร์ฟเวอร์
+    if (response.statusCode == 201) {
+      // แสดงป๊อปอัปแจ้งเตือนสำเร็จ
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('อัพเดทสำเร็จ'),
+            content: Text('ข้อมูลถูกอัพเดทเรียบร้อยแล้ว'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // ปิดป๊อปอัป
+                  Navigator.pop(context); // กลับไปหน้า Profile
+                },
+                child: Text('ตกลง'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      log('$server/update/${widget.idx}');
+      log(nameController.text);
+      log(imgController.text);
+      // หากเกิดข้อผิดพลาด แสดงข้อความแจ้งเตือน
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('เกิดข้อผิดพลาด'),
+            content: Text('ไม่สามารถอัพเดทข้อมูลได้'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // ปิดป๊อปอัป
+                },
+                child: Text('ตกลง'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  } 
 }
