@@ -1,6 +1,8 @@
 // ignore: file_names
 import 'dart:math';
+import 'dart:developer' as dv;
 import 'package:flutter/material.dart';
+import 'package:lottoproject/model/res/AllLotto.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/pages/ChackLottoPage.dart';
 import 'package:lottoproject/pages/MylottoPage.dart';
@@ -9,10 +11,12 @@ import 'package:lottoproject/pages/WalletPage.dart';
 import 'package:lottoproject/shared/app_Data.dart';
 import 'package:provider/provider.dart';
 
+import 'package:http/http.dart' as http;
+import 'package:lottoproject/config/config.dart';
 class HomePage extends StatefulWidget {
-  final int idx;
+  //final int idx;
 
-  const HomePage({super.key, required this.idx});
+  const HomePage({super.key});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -21,9 +25,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final int walletBalance = 50;
   final int ticketPrice = 100;
-
+  List<AllLotto> lottos = [];
+  String url = '';
   late Future<void> loadData;
-
+ 
 
   @override
   void initState() {
@@ -80,100 +85,13 @@ class _HomePageState extends State<HomePage> {
         body: SingleChildScrollView(
           child: Consumer<AppData>(
             builder: (context, appData, child) {
-              if (appData.user.userId != widget.idx) {
-                return const Center(
-                  child: Text('User data not available'),
-                );
-              }
+              // if (appData.user.userId != widget.idx) {
+              //   return const Center(
+              //     child: Text('User data not available'),
+              //   );
+              // }
               return Column(
-                children: [
-                   SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    
-                    child: Row(
-                      
-                      children: [
-                       
-                        Expanded(
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              hintText: 'Search for your LUCKY number!',
-                              fillColor: Colors.white,
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6, // Adjust height
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      itemCount: 10, // จำนวนเลขที่แสดง
-                      itemBuilder: (context, index) {
-                        String generateRandomNumber() {
-                          final random = Random();
-                          String randomNumber = '';
-                          for (int i = 0; i < 6; i++) {
-                            randomNumber += random.nextInt(10).toString();
-                            if (i < 5) {
-                              randomNumber += ' ';
-                            }
-                          }
-                          return randomNumber;
-                        }
-
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    generateRandomNumber(),
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    sure(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.purple,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'ซื้อ 100 บาท',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                //children: lottos.map((lotto) => Card()),
               );
             },
           ),
@@ -470,10 +388,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void walletpage(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Walletpage(idx: widget.idx)),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => Walletpage(idx: widget.idx)),
+    // );
   }
 
   void mylotto(BuildContext context) {
@@ -483,22 +401,41 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void chacklotto(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Chacklottopage()),
-    );
+  void chacklotto(BuildContext context) async{
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => const Chacklottopage()),
+    // );
+    // loadDataAsync();
+    url = 'https://node-api-lotto.vercel.app';
+    dv.log(url);
+    var res = await http.get(Uri.parse('$url/lotto'));
+    dv.log(res.body);
+    setState(() {
+      lottos = allLottoFromJson(res.body);
+    });
+    dv.log('all lotto:'+lottos.length.toString());
+    dv.log(lottos[0].lottoNumber);
+    
   }
 
   void profile(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Profilepage(idx: widget.idx)),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => Profilepage(idx: widget.idx)),
+    // );
+    
   }
 
   Future<void> loadDataAsync() async {
-  await Provider.of<AppData>(context, listen: false).fetchUserProfile(widget.idx);
+    //load data from api (async function)
+    var value = await Config.getConfig();
+    url = value['apiEndpoint'];
+
+    var data = await http.get(Uri.parse('$url/lotto/'));
+    lottos = allLottoFromJson(data.body);
+    dv.log('all lotto:'+lottos.length.toString());
+    //await Provider.of<AppData>(context, listen: false).fetchUserProfile(widget.idx);
 }
 
 }

@@ -9,7 +9,7 @@ GetUsers getUsersFromJson(String str) => GetUsers.fromJson(json.decode(str));
 String getUsersToJson(GetUsers data) => json.encode(data.toJson());
 
 class GetUsers {
-    int userId;
+   // int userId;
     String userName;
     String userEmail;
     int userWallet;
@@ -17,7 +17,7 @@ class GetUsers {
     String userImage;
 
     GetUsers({
-        required this.userId,
+        //required this.userId,
         required this.userName,
         required this.userEmail,
         required this.userWallet,
@@ -26,7 +26,7 @@ class GetUsers {
     });
 
     factory GetUsers.fromJson(Map<String, dynamic> json) => GetUsers(
-        userId: json["user_id"],
+        //userId: json["user_id"],
         userName: json["user_name"],
         userEmail: json["user_email"],
         userWallet: json["user_wallet"],
@@ -35,7 +35,7 @@ class GetUsers {
     );
 
     Map<String, dynamic> toJson() => {
-        "user_id": userId,
+        //"user_id": userId,
         "user_name": userName,
         "user_email": userEmail,
         "user_wallet": userWallet,

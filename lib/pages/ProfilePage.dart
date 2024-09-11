@@ -32,11 +32,11 @@ class _ProfilepagStateState extends State<Profilepage> {
       body: SingleChildScrollView(
         child: Consumer<AppData>(
           builder: (context, appData, child) {
-            if (appData.user.userId != widget.idx) {
-              return Center(
-                child: Text('User data not available'),
-              );
-            }
+            // if (appData.user.userId != widget.idx) {
+            //   return Center(
+            //     child: Text('User data not available'),
+            //   );
+            // }
 
             return Center(
               child: Column(

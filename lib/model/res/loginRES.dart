@@ -9,14 +9,14 @@ LoginRes loginResFromJson(String str) => LoginRes.fromJson(json.decode(str));
 String loginResToJson(LoginRes data) => json.encode(data.toJson());
 
 class LoginRes {
-    int userId;
+    //int userId;
     String userType;
     String userName;
     String email;
 
 
     LoginRes({
-        required this.userId,
+        //required this.userId,
         required this.userType,
         required this.userName,
         required this.email,
@@ -24,7 +24,7 @@ class LoginRes {
     });
 
     factory LoginRes.fromJson(Map<String, dynamic> json) => LoginRes(
-        userId: json["user_id"],
+        //userId: json["user_id"],
         userType: json["user_type"],
         userName: json["user_name"],
         email: json["user_email"],
@@ -32,7 +32,7 @@ class LoginRes {
     );
 
     Map<String, dynamic> toJson() => {
-        "user_id": userId,
+        //"user_id": userId,
         "user_type": userType,
         "user_name": userName,
         "user_email":email,

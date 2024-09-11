@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:lottoproject/model/req/lottoNumber.dart';
+import 'package:lottoproject/model/res/lottoNumberRes.dart';
+import 'dart:developer' as dv;
+import 'dart:math' as mt; 
 import 'package:lottoproject/pages/LoginPage.dart';
-
+import 'package:http/http.dart' as http;
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
 
@@ -14,11 +17,11 @@ class _AdminPageState extends State<AdminPage> {
   bool areButtonsDisabled = false; // สถานะปุ่ม
 
   // สร้างเลขสุ่ม 6 หลัก
-  String generateRandomNumber() {
-    Random random = Random();
-    int randomNumber = random.nextInt(900000) + 1;
-    return randomNumber.toString().padLeft(6, '0');
-  }
+  // String generateRandomNumber() {
+  //   Random random = Random();
+  //   int randomNumber = random.nextInt(900000) + 1;
+  //   return randomNumber.toString().padLeft(6, '0');
+  // }
 
   // แสดงตัวเลขแบบมีช่องว่างระหว่างตัวเลข
   Widget buildSpacedNumber(String number) {
@@ -39,7 +42,7 @@ class _AdminPageState extends State<AdminPage> {
       }).toList(),
     );
   }
-
+  String server = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -235,21 +238,34 @@ class _AdminPageState extends State<AdminPage> {
 
   // ออกผลรางวัล
   void drawPrizes() {
-    setState(() {
-      for (int i = 0; i < prizeNumbers.length; i++) {
-        prizeNumbers[i] = generateRandomNumber();
-      }
-      areButtonsDisabled = true;
-    });
+    // setState(() {
+    //   for (int i = 0; i < prizeNumbers.length; i++) {
+    //     prizeNumbers[i] = generateRandomNumber();
+    //   }
+    //   areButtonsDisabled = true;
+    // });
   }
 
   // รีเซ็ตหมายเลขรางวัล
   void resetPrizes() {
-    setState(() {
-      prizeNumbers = List.filled(5, '000000');
-      areButtonsDisabled = false;
-    });
-    Navigator.pop(context);
+    
+    final numbers = generateUniqueSixDigitNumbers(20);
+    for (var number in numbers) {
+      String input = number.toString();
+      var data = LottoNumberReq(lottoNumber:input);
+      
+      //
+      http.post(Uri.parse('$server/lotto/createLotto'),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: lottoNumberReqToJson(data),
+      ).then((value) {
+        LottoNumberRes response = lottoNumberResFromJson(value.body);
+        dv.log('Message: ${response.message}');
+      }).catchError((error) {
+        dv.log(error);
+      });
+    }
+    Navigator.of(context).pop();
   }
 
   // ยืนยันการรีเซ็ต
@@ -270,6 +286,7 @@ class _AdminPageState extends State<AdminPage> {
             TextButton(
               child: const Text('ตกลง'),
               onPressed: resetPrizes,
+              
             ),
           ],
         );
@@ -284,4 +301,23 @@ class _AdminPageState extends State<AdminPage> {
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
+
+  //camp is here
+  List<int> generateUniqueSixDigitNumbers(int count) {
+  if (count > 900000) {
+    throw ArgumentError('Cannot generate more than 900,000 unique 6-digit numbers');
+  }
+  
+  final random = mt.Random();
+  final uniqueNumbers = <int>{};
+  
+  while (uniqueNumbers.length < count) {
+    final number = 100000 + random.nextInt(900000);
+    uniqueNumbers.add(number);
+  }
+  
+  return uniqueNumbers.toList();
+  }
+
+  
 }
