@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:developer' as dv;
+
 import 'package:flutter/material.dart';
 import 'package:lottoproject/config/config.dart';
 import 'package:lottoproject/model/res/AllLottos.dart';
@@ -15,6 +16,7 @@ import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   final int idx;
+
 
   const HomePage({super.key, required this.idx});
 
@@ -60,6 +62,11 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
           title: Consumer<AppData>(
             builder: (context, appData, child) {
+               if (appData.user.userId != widget.idx) {
+              return Center(
+                child: Text('User data not available'),
+              );
+            }
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -160,7 +167,10 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
-                                    sure(context);//ส่ง lotto_id
+                                    var appData = Provider.of<AppData>(context, listen: false);
+                                    int userId = appData.user.userId;
+                                    int lottoId = lottoItem['lotto_id'];
+                                    sure(context,userId, lottoId);//ส่ง lotto_id
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.purple,
@@ -377,7 +387,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void sure(BuildContext context) {
+  void sure(BuildContext context, int userId, int lottoId) {
+    dv.log('userId:'+userId.toString());
+    dv.log('lottoid:'+lottoId.toString());
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -404,12 +416,18 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(color: Colors.white),
                   ),
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    if (walletBalance >= ticketPrice) {
-                      showSuccess(context);
-                    } else {
-                      showFailure(context);
-                    }
+                    
+                    // if (walletBalance >= ticketPrice) {
+                    //   showSuccess(context);
+
+                    // } else {
+                    //   showFailure(context);
+                    // }
+                    purchaseLotto(userId, lottoId);
+                   
+                    setState(() {
+                       Navigator.of(context).pop();
+                    });
                   },
                 ),
                 FilledButton(
@@ -430,6 +448,9 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  setState(() {
+    
+  });
   }
 
   void showSuccess(BuildContext context) {
@@ -537,3 +558,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }
+
+Future<void> purchaseLotto(int userId, int lottoId) async {
+  try {
+    var response = await http.post(
+      Uri.parse('https://node-api-lotto.vercel.app/lotto/buylotto'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'userId': userId,
+        'lottoId': lottoId,
+      }),
+    );
+
+  } catch (e) {
+    dv.log('Error making purchase: $e');
+  }
+}
+
+
+
