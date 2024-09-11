@@ -75,7 +75,7 @@ class _changeProfilepagStateState extends State<changeProfilepage> {
                   final userData = Provider.of<AppData>(context, listen: false).user;
 
                   // กำหนดค่าที่จะโชว์ใน TextField
-                  nameController = TextEditingController(text: userData.userName);
+                  nameController = TextEditingController(text: userData!.userName);
                   imgController = TextEditingController(text: userData.userImage);
 
                   return SizedBox(

@@ -32,7 +32,7 @@ class _ProfilepagStateState extends State<Profilepage> {
       body: SingleChildScrollView(
         child: Consumer<AppData>(
           builder: (context, appData, child) {
-            if (appData.user.userId != widget.idx) {
+            if (appData.user!.userId != widget.idx) {
               return Center(
                 child: Text('User data not available'),
               );
@@ -46,7 +46,7 @@ class _ProfilepagStateState extends State<Profilepage> {
                     height: 200,
                     child: ClipOval(
                       child: Image.network(
-                        appData.user.userImage,
+                        appData.user!.userImage,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -64,11 +64,11 @@ class _ProfilepagStateState extends State<Profilepage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildProfileField('Username', appData.user.userName),
+                          _buildProfileField('Username', appData.user!.userName),
                           Divider(),
-                          _buildProfileField('Email', appData.user.userEmail),
+                          _buildProfileField('Email', appData.user!.userEmail),
                           Divider(),
-                          _buildProfileField('Wallet', appData.user.userWallet.toString()),
+                          _buildProfileField('Wallet', appData.user!.userWallet.toString()),
                           Divider(),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 15),

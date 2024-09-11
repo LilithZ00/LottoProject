@@ -5,11 +5,11 @@ import 'package:lottoproject/config/apitest.dart';
 import 'package:lottoproject/model/res/GetUsers_id.dart';
 
 class AppData with ChangeNotifier {
-  late GetUsers users_id;  // โมเดลที่เก็บข้อมูลจาก API
+  GetUsers? users_id;  // โมเดลที่เก็บข้อมูลจาก API
   String userEmail = ''; 
   int id = 0;  // id ที่ใช้ในการเรียก API
 
-  GetUsers get user => users_id;  // Getter เพื่อดึงข้อมูลผู้ใช้
+  GetUsers? get user => users_id;  // Getter เพื่อดึงข้อมูลผู้ใช้
 
   // ฟังก์ชันสำหรับการเรียก API รับ id เป็นพารามิเตอร์
   Future<void> fetchUserProfile(int id) async {

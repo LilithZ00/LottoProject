@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
                 GestureDetector(
                   onTap: () => profile(context),
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(appData.user.userImage),
+                    backgroundImage: NetworkImage(appData.user!.userImage),
                     backgroundColor: Colors.grey,
                     radius: 20,
                   ),
@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 Text(
-                  '${appData.user.userWallet} บาท',
+                  '${appData.user!.userWallet} บาท',
                   style: const TextStyle(
                     color: Colors.purple,
                     fontSize: 24,
@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
         body: SingleChildScrollView(
           child: Consumer<AppData>(
             builder: (context, appData, child) {
-              if (appData.user.userId != widget.idx) {
+              if (appData.user!.userId != widget.idx) {
                 return const Center(
                   child: Text('User data not available'),
                 );

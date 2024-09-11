@@ -143,49 +143,55 @@ class _LoginPageState extends State<LoginPage> {
 
     var data =
         CustomerLoginPostRequest(email: phoneCtl.text, password: passCtl.text);
-    http
-        .post(
-      Uri.parse('$server/users/login'),
-      headers: {"Content-Type": "application/json; charset=utf-8"},
-      body: customerLoginPostRequestToJson(data),
-    )
-        .then((value) {
-      LoginRes response = loginResFromJson(value.body);
-      log('Username: ${response.userName}');
 
-      if (response.userType == 'a') {
+    try {
+      // ส่งคำขอไปยัง API
+      var response = await http.post(
+        Uri.parse('$server/users/login'),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: customerLoginPostRequestToJson(data),
+      );
+
+      // แปลงข้อมูลที่ได้รับจาก API เป็นรูปแบบที่ต้องการ
+      LoginRes loginResponse = loginResFromJson(response.body);
+
+      log('Username: ${loginResponse.userName}');
+
+      // ตรวจสอบประเภทของผู้ใช้งาน
+      if (loginResponse.userType == 'a') {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => AdminPage(),
-          ),
+          MaterialPageRoute(builder: (context) => AdminPage()),
         );
-      } else if (response.userType == 'c') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(idx: response.userId),
-          ),
-        );
+      } else if (loginResponse.userType == 'c') {
+        if (loginResponse.userId != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomePage(idx: loginResponse.userId)),
+          );
+        } else {
+          log('Error: userId is null');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: userId is null')),
+          );
+        }
       } else {
-        log('Unknown user role: ${response.userType}');
+        log('Unknown user role: ${loginResponse.userType}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Unknown user role')),
         );
       }
-    }).catchError((error) {
+    } catch (error) {
       log('Error: $error');
-      log(phoneCtl.text);
-      log(passCtl.text);
-      log('$server/users/login');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed')),
       );
-    }).whenComplete(() {
+    } finally {
       setState(() {
         _isLoading = false; // Stop loading
       });
-    });
+    }
   }
 
   void register(BuildContext context) {
@@ -195,4 +201,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
