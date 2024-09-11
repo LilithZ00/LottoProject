@@ -1,8 +1,9 @@
-// ignore: file_names
 import 'dart:convert';
 import 'dart:math';
+import 'dart:developer' as dv;
 import 'package:flutter/material.dart';
 import 'package:lottoproject/config/config.dart';
+import 'package:lottoproject/model/res/AllLottos.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/pages/ChackLottoPage.dart';
 import 'package:lottoproject/pages/MylottoPage.dart';
@@ -27,23 +28,23 @@ class _HomePageState extends State<HomePage> {
 
   late Future<void> loadData;
   late Future<void> loadLotto;
+  late Future<void> checkLottoData;
 
   String server = '';
+  List<Map<String, dynamic>> lottoData = [];
 
   @override
   void initState() {
     super.initState();
     loadData = loadDataAsync();
     loadLotto = showlotto();
+    checkLottoData = check(context);
 
-    Config.getConfig().then(
-      (value) {
-        log(value['serverAPI']);
-        setState(() {
-          server = value['serverAPI'];
-        });
-      },
-    );
+    Config.getConfig().then((value) {
+      setState(() {
+        server = value['serverAPI'];
+      });
+    });
   }
 
   @override
@@ -136,24 +137,12 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 16.0),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height *
-                        0.6, // Adjust height
+                    height: MediaQuery.of(context).size.height * 0.6,
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      itemCount: 10, // จำนวนเลขที่แสดง
+                      itemCount: lottoData.length,
                       itemBuilder: (context, index) {
-                        String generateRandomNumber() {
-                          final random = Random();
-                          String randomNumber = '';
-                          for (int i = 0; i < 6; i++) {
-                            randomNumber += random.nextInt(10).toString();
-                            if (i < 5) {
-                              randomNumber += ' ';
-                            }
-                          }
-                          return randomNumber;
-                        }
-
+                        var lottoItem = lottoData[index];
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Padding(
@@ -162,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    data.data.lottoNumber,
+                                    lottoItem['lotto_number'] ?? 'No Number',
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -243,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                onPressed: () => chacklotto(context),
+                onPressed: () => check(context),
               ),
               IconButton(
                 icon: const Column(
@@ -332,8 +321,7 @@ class _HomePageState extends State<HomePage> {
               ],
             );
           },
-        ) ??
-        false;
+        ) ?? false;
   }
 
   void suresingout(BuildContext context) {
@@ -522,10 +510,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> showlotto() async {
-    var response = await http.get(
-      Uri.parse('$server/lotto/'),
-    );
-      var data = json.decode(response.body);
-   
+    
+      try {
+        var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
+        var data = json.decode(response.body);
+
+        if (data is List) {
+          setState(() {
+            lottoData = List<Map<String, dynamic>>.from(data);
+          });
+        } else {
+          print('Data is not a list');
+        }
+      } catch (e) {
+        dv.log('Error fetching lotto data: $e');
+      }
+  }
+
+  Future<void> check(BuildContext context) async {
+    try {
+      var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
+      dv.log(response.body);
+      
+    } catch (e) {
+      dv.log('Error fetching data: $e');
+    }
   }
 }
