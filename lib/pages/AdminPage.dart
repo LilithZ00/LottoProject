@@ -1,4 +1,4 @@
-// ignore_for_file: unused_import, prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: unused_import, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, use_super_parameters, library_private_types_in_public_api
 
 import 'dart:convert';
 
@@ -219,12 +219,13 @@ class _AdminPageState extends State<AdminPage> {
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
-               const SizedBox(height: 10),
-                ElevatedButton(
+              const SizedBox(height: 10),
+              ElevatedButton(
                 onPressed: randomlotto,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color.fromARGB(255, 0, 0, 0),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: const Text(
                   'สุ่มเลขออกขาย',
@@ -233,7 +234,9 @@ class _AdminPageState extends State<AdminPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: showResetDialog,
+                onPressed: () {
+                  showResetDialog(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding:
@@ -283,25 +286,94 @@ class _AdminPageState extends State<AdminPage> {
     Navigator.pop(context);
   }
 
-  Future<void> generateRandomNumbers() async {
+  Future<void> showResetDialog(BuildContext context) async {
+    // รอให้ผู้ใช้ตอบสนองต่อ Dialog ก่อนที่จะดำเนินการขั้นตอนต่อไป
+    bool shouldGenerate = await showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Reset'),
+          content: Text(
+              'Do you want to delete all data and generate new random numbers?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                generateRandomNumbers(context);
+                Navigator.of(context).pop(false); // ส่งค่า false ถ้ากด Cancel
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(true); // ส่งค่า true ถ้ากด OK
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    // ตรวจสอบว่าผู้ใช้กด "OK" หรือไม่
+    if (shouldGenerate) {
+      final url =
+          Uri.parse('https://node-api-lotto.vercel.app/lotto/deleteAllLottos');
+      try {
+        var response = await http.delete(
+          url,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+        );
+        if (response.statusCode == 200) {
+          dl.log('Successfully deleted all lottos');
+          // ดำเนินการ generate random numbers เมื่อข้อมูลถูกลบสำเร็จ
+          await generateRandomNumbers(context);
+        } else {
+          dl.log('Failed to delete lottos');
+        }
+      } catch (e) {
+        dl.log('Error deleting lottos: $e');
+      }
+    }
+  }
+
+  Future<void> generateRandomNumbers(BuildContext context) async {
     final random = Random();
     List<String> randomNumbers = [];
-
     for (int i = 0; i < 100; i++) {
       String randomNumber = '';
       for (int j = 0; j < 6; j++) {
         randomNumber += random.nextInt(10).toString();
-        if (j < 5) {
-          randomNumber += '';
-        }
       }
       randomNumbers.add(randomNumber);
     }
-
-    // Send all the random numbers
+    // แสดง Dialog ที่มี Progress Bar
+    showDialog(
+      context: context,
+      barrierDismissible: false, // ป้องกันการปิด dialog โดยผู้ใช้
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              content: Row(
+                children: <Widget>[
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  ),
+                  SizedBox(width: 15),
+                  Text('กรุณารอสักครู่'),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    // ส่งหมายเลขทีละตัวและอัปเดต progress ใน dialog
     for (var number in randomNumbers) {
       var data = InsertLotto(lottoNumber: number);
-
       try {
         var response = await http.post(
           Uri.parse('https://node-api-lotto.vercel.app/lotto/createLotto'),
@@ -310,58 +382,17 @@ class _AdminPageState extends State<AdminPage> {
         );
 
         if (response.statusCode == 201) {
-        // Show success dialog
-        showDialog(
-          context: context,
-          barrierDismissible: false, // Prevent user from closing dialog
-          builder: (BuildContext context) {
-            return AlertDialog(
-              content: Row(
-                children: <Widget>[
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                  ),
-                  SizedBox(width: 20),
-                  Text('Success!'),
-                ],
-              ),
-            );
-          },
-        );
-      } else {
-          dl.log('gg');
-          // print('Failed to send: $number');
+          // เรียก setState เพื่ออัปเดต UI ของ dialog
+          setState(() {});
+        } else {
+          // จัดการกรณีที่ส่งไม่สำเร็จ
         }
       } catch (e) {
-        // print('Error sending: $number. Error: $e');
+        // จัดการกรณีที่เกิดข้อผิดพลาด
       }
     }
-  }
-
-  // ยืนยันการรีเซ็ต
-  void showResetDialog() {
-    generateRandomNumbers();
-    // showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     return AlertDialog(
-    //       title: const Text('รีเซ็ตระบบ'),
-    //       content: const Text('คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ต?'),
-    //       actions: <Widget>[
-    //         TextButton(
-    //           child: const Text('ยกเลิก'),
-    //           onPressed: () {
-    //             Navigator.of(context).pop();
-    //           },
-    //         ),
-    //         TextButton(
-    //           child: const Text('ตกลง'),
-    //           onPressed: resetPrizes,
-    //         ),
-    //       ],
-    //     );
-    //   },
-    // );
+    // ปิด Dialog หลังจากทำงานเสร็จ
+    Navigator.of(context).pop();
   }
 
   // กลับไปที่หน้า LoginPage
@@ -372,7 +403,5 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  void randomlotto() {
-    
-  }
+  void randomlotto() {}
 }
