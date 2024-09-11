@@ -300,7 +300,6 @@ class _AdminPageState extends State<AdminPage> {
             TextButton(
               child: Text('Cancel'),
               onPressed: () {
-                generateRandomNumbers(context);
                 Navigator.of(context).pop(false); // ส่งค่า false ถ้ากด Cancel
               },
             ),
