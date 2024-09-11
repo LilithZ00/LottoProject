@@ -23,7 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final int walletBalance = 50;
+  final int walletBalance = 50;// ดึง api
   final int ticketPrice = 100;
 
   late Future<void> loadData;
@@ -160,7 +160,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
-                                    sure(context);
+                                    sure(context);//ส่ง lotto_id
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.purple,
