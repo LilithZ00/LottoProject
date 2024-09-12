@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Mylottopage extends StatefulWidget {
-  const Mylottopage({super.key});
+  final idx;
+  const Mylottopage({super.key, required this.idx});
 
   @override
   State<Mylottopage> createState() => _MylottopageState(); 
