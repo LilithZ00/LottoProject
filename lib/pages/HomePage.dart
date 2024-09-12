@@ -19,7 +19,6 @@ import 'package:http/http.dart' as http;
 class HomePage extends StatefulWidget {
   final int idx;
 
-
   const HomePage({super.key, required this.idx});
 
   @override
@@ -547,7 +546,7 @@ void showFailure(BuildContext context) {
   void mylotto(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Mylottopage(idx: widget.idx)),
+      MaterialPageRoute(builder: (context) => Mylottopage(idx: widget.idx,)),
     );
   }
 
@@ -559,6 +558,7 @@ void showFailure(BuildContext context) {
   }
 
   void profile(BuildContext context) {
+    
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Profilepage(idx: widget.idx)),
