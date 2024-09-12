@@ -176,6 +176,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     ElevatedButton(
                                       onPressed: () {
+                                        
                                         var appData = Provider.of<AppData>(
                                             context,
                                             listen: false);
@@ -190,7 +191,8 @@ class _HomePageState extends State<HomePage> {
                                               BorderRadius.circular(20.0),
                                         ),
                                       ),
-                                      child: const Text(
+                                      child:
+                                      const Text(
                                         'ซื้อ 100 บาท',
                                         style: TextStyle(color: Colors.white),
                                       ),
@@ -435,76 +437,140 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> sure(BuildContext context, int userId, int lottoId) async {
-    dv.log('userId:' + userId.toString());
-    dv.log('lottoId:' + lottoId.toString());
+  dv.log('userId:' + userId.toString());
+  dv.log('lottoId:' + lottoId.toString());
 
-    var appData = Provider.of<AppData>(context, listen: false);
-    int userWallet = appData.user.userWallet;
+  // Check if lotto results are already available
+  bool resultsOut = await checkLottoResults();
+  if (resultsOut) {
+    // If results are out, show a message and prevent buying
+    showLottoResultsOutMessage(context);
+    return;
+  }
 
-    bool? result = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+  var appData = Provider.of<AppData>(context, listen: false);
+  int userWallet = appData.user.userWallet;
+
+  bool? confirmPurchase = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "คุณต้องการจะซื้อใช่หรือไม่",
+              style: TextStyle(fontSize: 19),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "คุณต้องการจะซื้อใช่หรือไม่",
-                style: TextStyle(fontSize: 19),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.green[400],
+                ),
+                child: const Text(
+                  "ตกลง",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(userWallet >= 100);
+                },
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.red[400],
+                ),
+                child: const Text(
+                  "ยกเลิก",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
             ],
           ),
-          actions: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.green[400],
-                  ),
-                  child: const Text(
-                    "ตกลง",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop(userWallet >= 100);
-                  },
-                ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red[400],
-                  ),
-                  child: const Text(
-                    "ยกเลิก",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
+        ],
+      );
+    },
+  );
 
-    if (result == true) {
-      setState(() {
-        isProcessing = true;
-      });
-      await purchaseLotto(userId, lottoId);
-      appData.updateUserWallet(userWallet - 100);
-      await showSuccess(context);
+  if (confirmPurchase == true) {
+    setState(() {
+      isProcessing = true;
+    });
+    await purchaseLotto(userId, lottoId);
+    appData.updateUserWallet(userWallet - 100);
+    await showSuccess(context);
 
-      setState(() {
-        isProcessing = false;
-        loadLotto = showlotto();
-      });
-    } else if (result == false) {
-      showFailure(context);
-    }
+    setState(() {
+      isProcessing = false;
+      loadLotto = showlotto();
+    });
+  } else if (confirmPurchase == false) {
+    showFailure(context);
   }
+}
+
+Future<bool> checkLottoResults() async {
+  try {
+    var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/result/'));
+    dv.log('Response status code: ${response.statusCode}');
+    dv.log('Response body: ${response.body}');
+    
+    if (response.statusCode == 200) {
+      // ตรวจสอบว่าข้อมูลไม่ว่างเปล่าและมีเนื้อหาที่ต้องการ
+      var data = jsonDecode(response.body) as List;
+      if (data.isNotEmpty) {
+        return true; // ผลรางวัลออกแล้ว
+      }
+    }
+  } catch (e) {
+    dv.log('Error checking lotto results: $e');
+  }
+  // ผลรางวัลยังไม่ออกหรือเกิดข้อผิดพลาด
+  return false;
+}
+
+
+void showLottoResultsOutMessage(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error, color: Colors.red, size: 50),
+            SizedBox(height: 10),
+            Text("ผลรางวัลได้ออกแล้ว"),
+            Text("ไม่สามารถซื้อได้อีกต่อไป"),
+          ],
+        ),
+        actions: <Widget>[
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red[400],
+            ),
+            child: const Text(
+              "ตกลง",
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
   Future<void> showSuccess(BuildContext context) async {
     return showDialog(
