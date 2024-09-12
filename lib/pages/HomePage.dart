@@ -1,6 +1,10 @@
-// ignore: file_names
+import 'dart:convert';
 import 'dart:math';
+import 'dart:developer' as dv;
+
 import 'package:flutter/material.dart';
+import 'package:lottoproject/config/config.dart';
+import 'package:lottoproject/model/res/AllLottos.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/pages/ChackLottoPage.dart';
 import 'package:lottoproject/pages/MylottoPage.dart';
@@ -8,9 +12,11 @@ import 'package:lottoproject/pages/ProfilePage.dart';
 import 'package:lottoproject/pages/WalletPage.dart';
 import 'package:lottoproject/shared/app_Data.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   final int idx;
+
 
   const HomePage({super.key, required this.idx});
 
@@ -19,16 +25,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final int walletBalance = 50;
+  final int walletBalance = 50;// ดึง api
   final int ticketPrice = 100;
 
   late Future<void> loadData;
+  late Future<void> loadLotto;
+  late Future<void> checkLottoData;
 
+  String server = '';
+  List<Map<String, dynamic>> lottoData = [];
 
   @override
   void initState() {
     super.initState();
     loadData = loadDataAsync();
+    loadLotto = showlotto();
+    checkLottoData = check(context);
+
+    Config.getConfig().then((value) {
+      setState(() {
+        server = value['serverAPI'];
+      });
+    });
   }
 
   @override
@@ -40,49 +58,59 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
-        title: Consumer<AppData>(
-          builder: (context, appData, child) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () => profile(context),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(appData.user.userImage),
-                    backgroundColor: Colors.grey,
-                    radius: 20,
-                  ),
-                ),
-                const Text(
-                  'LOTTO',
-                  style: TextStyle(
-                    color: Colors.purple,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '${appData.user.userWallet} บาท',
-                  style: const TextStyle(
-                    color: Colors.purple,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-      
-        body: SingleChildScrollView(
-          child: Consumer<AppData>(
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
+          title: Consumer<AppData>(
             builder: (context, appData, child) {
-              if (appData.user.userId != widget.idx) {
+               if (appData.user.userId != widget.idx) {
+              return Center(
+                child: Text('User data not available'),
+              );
+            }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => profile(context),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(appData.user.userImage),
+                      backgroundColor: Colors.grey,
+                      radius: 20,
+                    ),
+                  ),
+                  const Text(
+                    'LOTTO',
+                    style: TextStyle(
+                      color: Colors.purple,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${appData.user.userWallet} บาท',
+                    style: const TextStyle(
+                      color: Colors.purple,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: FutureBuilder(
+            future: loadLotto,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
                 return const Center(
-                  child: Text('User data not available'),
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'),
                 );
               }
               return Column(
@@ -119,23 +147,12 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 16.0),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6, // Adjust height
+                    height: MediaQuery.of(context).size.height * 0.6,
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      itemCount: 10, // จำนวนเลขที่แสดง
+                      itemCount: lottoData.length,
                       itemBuilder: (context, index) {
-                        String generateRandomNumber() {
-                          final random = Random();
-                          String randomNumber = '';
-                          for (int i = 0; i < 6; i++) {
-                            randomNumber += random.nextInt(10).toString();
-                            if (i < 5) {
-                              randomNumber += ' ';
-                            }
-                          }
-                          return randomNumber;
-                        }
-
+                        var lottoItem = lottoData[index];
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Padding(
@@ -144,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    generateRandomNumber(),
+                                    lottoItem['lotto_number'] ?? 'No Number',
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -153,7 +170,10 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
-                                    sure(context);
+                                    var appData = Provider.of<AppData>(context, listen: false);
+                                    int userId = appData.user.userId;
+                                    int lottoId = lottoItem['lotto_id'];
+                                    sure(context,userId, lottoId);//ส่ง lotto_id
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.purple,
@@ -225,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                onPressed: () => chacklotto(context),
+                onPressed: () => check(context),
               ),
               IconButton(
                 icon: const Column(
@@ -266,55 +286,55 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> showSignOutPopup(BuildContext context) async {
     return await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "คุณต้องการออกจากระบบใช่หรือไม่",
-                style: TextStyle(fontSize: 15),
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "คุณต้องการออกจากระบบใช่หรือไม่",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.green[400],
-                  ),
-                  child: const Text(
-                    "ตกลง",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                      (Route<dynamic> route) => false,
-                    );
-                  },
-                ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red[400],
-                  ),
-                  child: const Text(
-                    "ยกเลิก",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.green[400],
+                      ),
+                      child: const Text(
+                        "ตกลง",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.red[400],
+                      ),
+                      child: const Text(
+                        "ยกเลิก",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ],
-        );
-      },
-    ) ?? false;
+            );
+          },
+        ) ?? false;
   }
 
   void suresingout(BuildContext context) {
@@ -370,7 +390,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void sure(BuildContext context) {
+  void sure(BuildContext context, int userId, int lottoId) {
+    dv.log('userId:'+userId.toString());
+    dv.log('lottoid:'+lottoId.toString());
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -397,12 +419,18 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(color: Colors.white),
                   ),
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    if (walletBalance >= ticketPrice) {
-                      showSuccess(context);
-                    } else {
-                      showFailure(context);
-                    }
+                    
+                    // if (walletBalance >= ticketPrice) {
+                    //   showSuccess(context);
+
+                    // } else {
+                    //   showFailure(context);
+                    // }
+                    purchaseLotto(userId, lottoId);
+                   
+                    setState(() {
+                       Navigator.of(context).pop();
+                    });
                   },
                 ),
                 FilledButton(
@@ -423,6 +451,9 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  setState(() {
+    
+  });
   }
 
   void showSuccess(BuildContext context) {
@@ -498,7 +529,56 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> loadDataAsync() async {
-  await Provider.of<AppData>(context, listen: false).fetchUserProfile(widget.idx);
+    await Provider.of<AppData>(context, listen: false)
+        .fetchUserProfile(widget.idx);
+  }
+
+  Future<void> showlotto() async {
+    
+      try {
+        var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
+        var data = json.decode(response.body);
+
+        if (data is List) {
+          setState(() {
+            lottoData = List<Map<String, dynamic>>.from(data);
+          });
+        } else {
+          print('Data is not a list');
+        }
+      } catch (e) {
+        dv.log('Error fetching lotto data: $e');
+      }
+  }
+
+  Future<void> check(BuildContext context) async {
+    try {
+      var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
+      dv.log(response.body);
+      
+    } catch (e) {
+      dv.log('Error fetching data: $e');
+    }
+  }
 }
 
+Future<void> purchaseLotto(int userId, int lottoId) async {
+  try {
+    var response = await http.post(
+      Uri.parse('https://node-api-lotto.vercel.app/lotto/buylotto'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'userId': userId,
+        'lottoId': lottoId,
+      }),
+    );
+
+  } catch (e) {
+    dv.log('Error making purchase: $e');
+  }
 }
+
+
+
