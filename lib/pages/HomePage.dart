@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings
+// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, unused_import, use_build_context_synchronously, unused_local_variable
 
 import 'dart:convert';
 import 'dart:math';
@@ -624,7 +624,7 @@ class _HomePageState extends State<HomePage> {
           lottoData = List<Map<String, dynamic>>.from(data);
         });
       } else {
-        print('Data is not a list');
+        dv.log('Data is not a list');
       }
     } catch (e) {
       dv.log('Error fetching lotto data: $e');
