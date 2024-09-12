@@ -17,7 +17,6 @@ import 'package:http/http.dart' as http;
 class HomePage extends StatefulWidget {
   final int idx;
 
-
   const HomePage({super.key, required this.idx});
 
   @override
@@ -25,8 +24,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final int walletBalance = 50;// ดึง api
+  final int walletBalance = 50; // ดึง api
   final int ticketPrice = 100;
+
+  final TextEditingController _searchLottoNumber = TextEditingController();
 
   late Future<void> loadData;
   late Future<void> loadLotto;
@@ -52,248 +53,258 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return WillPopScope(
-    onWillPop: () async {
-      bool shouldPop = await showSignOutPopup(context);
-      return shouldPop;
-    },
-    child: Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
-        title: Consumer<AppData>(
-          builder: (context, appData, child) {
-            if (appData.user.userId != widget.idx) {
-              return Center(
-                child: Text('User data not available'),
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        bool shouldPop = await showSignOutPopup(context);
+        return shouldPop;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
+          title: Consumer<AppData>(
+            builder: (context, appData, child) {
+              if (appData.user.userId != widget.idx) {
+                return Center(
+                  child: Text('User data not available'),
+                );
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => profile(context),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(appData.user.userImage),
+                      backgroundColor: Colors.grey,
+                      radius: 20,
+                    ),
+                  ),
+                  const Text(
+                    'LOTTO',
+                    style: TextStyle(
+                      color: Colors.purple,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${appData.user.userWallet} บาท',
+                    style: const TextStyle(
+                      color: Colors.purple,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               );
-            }
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () => profile(context),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(appData.user.userImage),
-                    backgroundColor: Colors.grey,
-                    radius: 20,
-                  ),
-                ),
-                const Text(
-                  'LOTTO',
-                  style: TextStyle(
-                    color: Colors.purple,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '${appData.user.userWallet} บาท',
-                  style: const TextStyle(
-                    color: Colors.purple,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            );
-          },
+            },
+          ),
         ),
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: FutureBuilder(
-              future: loadLotto,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'),
-                  );
-                }
-                return Column(
-                  children: [
-                    SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: 'Search for your LUCKY number!',
-                                fillColor: Colors.white,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide.none,
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              child: FutureBuilder(
+                future: loadLotto,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'),
+                    );
+                  }
+                  return Column(
+                    children: [
+                      SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _searchLottoNumber,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: 'Search for your LUCKY number!',
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide.none,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          IconButton(
-                            icon: const Icon(Icons.search),
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        itemCount: lottoData.length,
-                        itemBuilder: (context, index) {
-                          var lottoItem = lottoData[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      lottoItem['lotto_number'] ?? 'No Number',
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      var appData = Provider.of<AppData>(context, listen: false);
-                                      int userId = appData.user.userId;
-                                      int lottoId = lottoItem['lotto_id'];
-                                      sure(context, userId, lottoId);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.purple,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20.0),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'ซื้อ 100 บาท',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            const SizedBox(width: 10),
+                            IconButton(
+                              icon: const Icon(Icons.search),
+                              onPressed: () {
+                                _searchLotto(_searchLottoNumber.text);
+                              },
                             ),
-                          );
-                        },
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          itemCount: lottoData.length,
+                          itemBuilder: (context, index) {
+                            var lottoItem = lottoData[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        lottoItem['lotto_number'] ??
+                                            'No Number',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        var appData = Provider.of<AppData>(
+                                            context,
+                                            listen: false);
+                                        int userId = appData.user.userId;
+                                        int lottoId = lottoItem['lotto_id'];
+                                        sure(context, userId, lottoId);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.purple,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'ซื้อ 100 บาท',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            if (isProcessing)
+              Container(
+                color: Colors.black54,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+          ],
+        ),
+        bottomNavigationBar: BottomAppBar(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Column(
+                  children: [
+                    Icon(Icons.home, color: Color.fromARGB(255, 0, 0, 0)),
+                    Text(
+                      'Home',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 10,
                       ),
                     ),
                   ],
-                );
-              },
-            ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    loadLotto = showlotto();
+                  });
+                },
+              ),
+              IconButton(
+                icon: const Column(
+                  children: [
+                    Icon(Icons.confirmation_number, color: Colors.black),
+                    Text(
+                      'My Lotto',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () => mylotto(context),
+              ),
+              IconButton(
+                icon: const Column(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.black),
+                    Text(
+                      'ChackLotto',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () => check(context),
+              ),
+              IconButton(
+                icon: const Column(
+                  children: [
+                    Icon(Icons.account_balance_wallet, color: Colors.black),
+                    Text(
+                      'Wallet',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () => walletpage(context),
+              ),
+              IconButton(
+                icon: const Column(
+                  children: [
+                    Icon(Icons.exit_to_app, color: Colors.red),
+                    Text(
+                      'Signout',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 244, 67, 54),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () => suresingout(context),
+              ),
+            ],
           ),
-          if (isProcessing)
-            Container(
-              color: Colors.black54,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-        ],
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const IconButton(
-              icon: Column(
-                children: [
-                  Icon(Icons.home, color: Color.fromARGB(255, 123, 123, 123)),
-                  Text(
-                    'Home',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 117, 117, 117),
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-              onPressed: null,
-            ),
-            IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.confirmation_number, color: Colors.black),
-                  Text(
-                    'My Lotto',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-              onPressed: () => mylotto(context),
-            ),
-            IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.black),
-                  Text(
-                    'ChackLotto',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-              onPressed: () => check(context),
-            ),
-            IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.account_balance_wallet, color: Colors.black),
-                  Text(
-                    'Wallet',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-              onPressed: () => walletpage(context),
-            ),
-            IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.exit_to_app, color: Colors.red),
-                  Text(
-                    'Signout',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 244, 67, 54),
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-              onPressed: () => suresingout(context),
-            ),
-          ],
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Future<bool> showSignOutPopup(BuildContext context) async {
     return await showDialog<bool>(
@@ -345,7 +356,8 @@ Widget build(BuildContext context) {
               ],
             );
           },
-        ) ?? false;
+        ) ??
+        false;
   }
 
   void suresingout(BuildContext context) {
@@ -402,131 +414,141 @@ Widget build(BuildContext context) {
   }
 
   Future<void> sure(BuildContext context, int userId, int lottoId) async {
-  dv.log('userId:' + userId.toString());
-  dv.log('lottoId:' + lottoId.toString());
+    dv.log('userId:' + userId.toString());
+    dv.log('lottoId:' + lottoId.toString());
 
-  var appData = Provider.of<AppData>(context, listen: false);
-  int userWallet = appData.user.userWallet;
-  
-  bool? result = await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "คุณต้องการจะซื้อใช่หรือไม่",
-              style: TextStyle(fontSize: 19),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    var appData = Provider.of<AppData>(context, listen: false);
+    int userWallet = appData.user.userWallet;
+
+    bool? result = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.green[400],
-                ),
-                child: const Text(
-                  "ตกลง",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(userWallet >= 100);
-                },
-              ),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.red[400],
-                ),
-                child: const Text(
-                  "ยกเลิก",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+              Text(
+                "คุณต้องการจะซื้อใช่หรือไม่",
+                style: TextStyle(fontSize: 19),
               ),
             ],
           ),
-        ],
-      );
-    },
-  );
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.green[400],
+                  ),
+                  child: const Text(
+                    "ตกลง",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(userWallet >= 100);
+                  },
+                ),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.red[400],
+                  ),
+                  child: const Text(
+                    "ยกเลิก",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
 
-  if (result == true) {
-    setState(() {
-      isProcessing = true; 
-    });
-    await purchaseLotto(userId, lottoId);
-    appData.updateUserWallet(userWallet - 100);
-    await showSuccess(context);
+    if (result == true) {
+      setState(() {
+        isProcessing = true;
+      });
+      await purchaseLotto(userId, lottoId);
+      appData.updateUserWallet(userWallet - 100);
+      await showSuccess(context);
 
-    setState(() {
-      isProcessing = false;
-      loadLotto = showlotto(); 
-    });
-  } else if (result == false) {
-    showFailure(context);
+      setState(() {
+        isProcessing = false;
+        loadLotto = showlotto();
+      });
+    } else if (result == false) {
+      showFailure(context);
+    }
   }
-}
 
-
-Future<void> showSuccess(BuildContext context) async {
-  return showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.check, color: Colors.green, size: 50),
-            SizedBox(height: 10),
-            Text("ชำระเงินสำเร็จ"),
-          ],
-        ),
-        actions: <Widget>[
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.green[400],
-            ),
-            child: const Text(
-              "ตกลง",
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              setState(() {
-                loadLotto = showlotto();
-              });
-            },
+  Future<void> showSuccess(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check, color: Colors.green, size: 50),
+              SizedBox(height: 10),
+              Text("ชำระเงินสำเร็จ"),
+            ],
           ),
-        ],
-      );
-    },
-  );
-}
-
-void showFailure(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return const AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error, color: Colors.red, size: 50),
-            SizedBox(height: 10),
-            Text("ชำระเงินไม่สำเร็จ"),
-            Text("ยอดเงินในบัญชีไม่เพียงพอ"),
+          actions: <Widget>[
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.green[400],
+              ),
+              child: const Text(
+                "ตกลง",
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  loadLotto = showlotto();
+                });
+              },
+            ),
           ],
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
+
+  void _searchLotto(String query) {
+    final filteredData = lottoData.where((lotto) {
+      final lottoNumber = lotto['lotto_number'].toString();
+      return lottoNumber.contains(query);
+    }).toList();
+
+    setState(() {
+      lottoData = filteredData;
+    });
+  }
+
+  void showFailure(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error, color: Colors.red, size: 50),
+              SizedBox(height: 10),
+              Text("ชำระเงินไม่สำเร็จ"),
+              Text("ยอดเงินในบัญชีไม่เพียงพอ"),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   void login(BuildContext context) {
     Navigator.pop(
@@ -569,28 +591,28 @@ void showFailure(BuildContext context) {
   }
 
   Future<void> showlotto() async {
-    
-      try {
-        var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
-        var data = json.decode(response.body);
+    try {
+      var response = await http.get(
+          Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
+      var data = json.decode(response.body);
 
-        if (data is List) {
-          setState(() {
-            lottoData = List<Map<String, dynamic>>.from(data);
-          });
-        } else {
-          print('Data is not a list');
-        }
-      } catch (e) {
-        dv.log('Error fetching lotto data: $e');
+      if (data is List) {
+        setState(() {
+          lottoData = List<Map<String, dynamic>>.from(data);
+        });
+      } else {
+        print('Data is not a list');
       }
+    } catch (e) {
+      dv.log('Error fetching lotto data: $e');
+    }
   }
 
   Future<void> check(BuildContext context) async {
     try {
-      var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
+      var response = await http.get(
+          Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
       dv.log(response.body);
-      
     } catch (e) {
       dv.log('Error fetching data: $e');
     }
@@ -609,11 +631,7 @@ Future<void> purchaseLotto(int userId, int lottoId) async {
         'lottoId': lottoId,
       }),
     );
-
   } catch (e) {
     dv.log('Error making purchase: $e');
   }
 }
-
-
-
