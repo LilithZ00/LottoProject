@@ -115,11 +115,14 @@ class _HomePageState extends State<HomePage> {
               }
               return Column(
                 children: [
-                  const SizedBox(height: 10),
+                   SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    
                     child: Row(
+                      
                       children: [
+                       
                         Expanded(
                           child: TextField(
                             keyboardType: TextInputType.number,

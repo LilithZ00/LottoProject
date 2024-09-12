@@ -1,6 +1,15 @@
+// ignore_for_file: unused_import, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, use_super_parameters, library_private_types_in_public_api
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:lottoproject/config/apitest.dart';
+import 'package:lottoproject/config/config.dart';
+import 'package:lottoproject/model/req/InsertLotto.dart';
 import 'dart:math';
+import 'dart:developer' as dl;
 import 'package:lottoproject/pages/LoginPage.dart';
+import 'package:http/http.dart' as http;
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
@@ -10,7 +19,8 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-  List<String> prizeNumbers = List.filled(5, '000000'); // สร้างลิสต์สำหรับเก็บหมายเลขรางวัล
+  List<String> prizeNumbers =
+      List.filled(5, '000000'); // สร้างลิสต์สำหรับเก็บหมายเลขรางวัล
   bool areButtonsDisabled = false; // สถานะปุ่ม
 
   // สร้างเลขสุ่ม 6 หลัก
@@ -95,7 +105,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -116,7 +127,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -143,7 +155,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -164,7 +177,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -181,8 +195,10 @@ class _AdminPageState extends State<AdminPage> {
               ElevatedButton(
                 onPressed: areButtonsDisabled ? null : drawPrizes,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: areButtonsDisabled ? Colors.grey : Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  backgroundColor:
+                      areButtonsDisabled ? Colors.grey : Colors.black,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: const Text(
                   'ออกผลรางวัลจากที่ขายไป',
@@ -193,20 +209,38 @@ class _AdminPageState extends State<AdminPage> {
               ElevatedButton(
                 onPressed: areButtonsDisabled ? null : drawPrizes,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: areButtonsDisabled ? Colors.grey : Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  backgroundColor:
+                      areButtonsDisabled ? Colors.grey : Colors.black,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: const Text(
                   'ออกผลรางวัลจากทั้งหมด',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: randomlotto,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 0, 0, 0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                ),
+                child: const Text(
+                  'สุ่มเลขออกขาย',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: showResetDialog,
+                onPressed: () {
+                  showResetDialog(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: const Text(
                   'รีเซ็ตระบบ',
@@ -252,29 +286,112 @@ class _AdminPageState extends State<AdminPage> {
     Navigator.pop(context);
   }
 
-  // ยืนยันการรีเซ็ต
-  void showResetDialog() {
-    showDialog(
+  Future<void> showResetDialog(BuildContext context) async {
+    // รอให้ผู้ใช้ตอบสนองต่อ Dialog ก่อนที่จะดำเนินการขั้นตอนต่อไป
+    bool shouldGenerate = await showDialog(
       context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('รีเซ็ตระบบ'),
-          content: const Text('คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ต?'),
+          title: Text('Confirm Reset'),
+          content: Text(
+              'Do you want to delete all data and generate new random numbers?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('ยกเลิก'),
+              child: Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(false); // ส่งค่า false ถ้ากด Cancel
               },
             ),
             TextButton(
-              child: const Text('ตกลง'),
-              onPressed: resetPrizes,
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(true); // ส่งค่า true ถ้ากด OK
+              },
             ),
           ],
         );
       },
     );
+
+    // ตรวจสอบว่าผู้ใช้กด "OK" หรือไม่
+    if (shouldGenerate) {
+      final url =
+          Uri.parse('https://node-api-lotto.vercel.app/lotto/deleteAllLottos');
+      try {
+        var response = await http.delete(
+          url,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+        );
+        if (response.statusCode == 200) {
+          dl.log('Successfully deleted all lottos');
+          // ดำเนินการ generate random numbers เมื่อข้อมูลถูกลบสำเร็จ
+          await generateRandomNumbers(context);
+        } else {
+          dl.log('Failed to delete lottos');
+        }
+      } catch (e) {
+        dl.log('Error deleting lottos: $e');
+      }
+    }
+  }
+
+  Future<void> generateRandomNumbers(BuildContext context) async {
+    final random = Random();
+    List<String> randomNumbers = [];
+    for (int i = 0; i < 100; i++) {
+      String randomNumber = '';
+      for (int j = 0; j < 6; j++) {
+        randomNumber += random.nextInt(10).toString();
+      }
+      randomNumbers.add(randomNumber);
+    }
+    // แสดง Dialog ที่มี Progress Bar
+    showDialog(
+      context: context,
+      barrierDismissible: false, // ป้องกันการปิด dialog โดยผู้ใช้
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              content: Row(
+                children: <Widget>[
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  ),
+                  SizedBox(width: 15),
+                  Text('กรุณารอสักครู่'),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    // ส่งหมายเลขทีละตัวและอัปเดต progress ใน dialog
+    for (var number in randomNumbers) {
+      var data = InsertLotto(lottoNumber: number);
+      try {
+        var response = await http.post(
+          Uri.parse('https://node-api-lotto.vercel.app/lotto/createLotto'),
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: jsonEncode(data.toJson()),
+        );
+
+        if (response.statusCode == 201) {
+          // เรียก setState เพื่ออัปเดต UI ของ dialog
+          setState(() {});
+        } else {
+          // จัดการกรณีที่ส่งไม่สำเร็จ
+        }
+      } catch (e) {
+        // จัดการกรณีที่เกิดข้อผิดพลาด
+      }
+    }
+    // ปิด Dialog หลังจากทำงานเสร็จ
+    Navigator.of(context).pop();
   }
 
   // กลับไปที่หน้า LoginPage
@@ -284,4 +401,6 @@ class _AdminPageState extends State<AdminPage> {
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
+
+  void randomlotto() {}
 }

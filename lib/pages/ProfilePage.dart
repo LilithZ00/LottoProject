@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_typing_uninitialized_variables
+// ignore_for_file: prefer_const_constructors, prefer_typing_uninitialized_variables
 
 import 'package:flutter/material.dart';
 import 'package:lottoproject/pages/changeProfile.dart';
@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 class Profilepage extends StatefulWidget {
   final idx;
 
-  const Profilepage({super.key,required this.idx});
+  const Profilepage({super.key, required this.idx});
 
   @override
   State<Profilepage> createState() => _ProfilepagStateState();
@@ -38,86 +38,66 @@ class _ProfilepagStateState extends State<Profilepage> {
               );
             }
 
-            return Column(
-              children: [
-                SizedBox(
-                  width: 200,
-                  height: 200,
-                  child: ClipOval(
-                    child: Image.network(
-                       appData.user.userImage,
-                      fit: BoxFit.cover,
+            return Center(
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: ClipOval(
+                      child: Image.network(
+                        appData.user.userImage,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: 25),
-                Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  elevation: 4,
-                  child: Container(
-                    width: 350,
-                    height: 320,
-                    padding: EdgeInsets.all(16),
-                    child: SingleChildScrollView(
+                  SizedBox(height: 25),
+                  Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    elevation: 4,
+                    child: Container(
+                      width: 350,
+                      padding: EdgeInsets.all(16),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _buildProfileField('Username', appData.user.userName),
+                          Divider(),
+                          _buildProfileField('Email', appData.user.userEmail),
+                          Divider(),
+                          _buildProfileField('Wallet', appData.user.userWallet.toString()),
+                          Divider(),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Username'),
-                                TextField(
-                                  controller: TextEditingController(text: appData.user.userName), // ใช้ข้อมูลจาก provider
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 15),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Phone'),
-                                TextField(
-                                  controller: TextEditingController(text: appData.user.userType), // ใช้ข้อมูลจาก provider
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 15),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('E-mail'),
-                                TextField(
-                                  controller: TextEditingController(text: appData.user.userEmail), // ใช้ข้อมูลจาก provider
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 15),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.symmetric(vertical: 15),
                             child: Center(
                               child: FilledButton(
-                                onPressed: update,
+                                onPressed: () async {
+                                  bool? result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => changeProfilepage(idx: widget.idx),
+                                    ),
+                                  );
+                                  if (result == true) {
+                                    // รีเฟรชข้อมูล
+                                    setState(() {
+                                      loadData = loadDataAsync();
+                                    });
+                                  }
+                                },
                                 child: const Text('Update'),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),
@@ -125,15 +105,40 @@ class _ProfilepagStateState extends State<Profilepage> {
     );
   }
 
+  Widget _buildProfileField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> loadDataAsync() async {
     // เรียกใช้ fetchUserProfile จาก Provider
-    await Provider.of<AppData>(context, listen: false).fetchUserProfile(widget.idx);
+    await Provider.of<AppData>(context, listen: false)
+        .fetchUserProfile(widget.idx);
   }
 
   void update() async {
     Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => changeProfilepage()),
-        );
+      context,
+      MaterialPageRoute(builder: (context) => changeProfilepage(idx: widget.idx)),
+    );
   }
 }
