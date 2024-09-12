@@ -590,7 +590,7 @@ class _HomePageState extends State<HomePage> {
   void mylotto(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Mylottopage(idx: widget.idx)),
+      MaterialPageRoute(builder: (context) => Mylottopage(idx: widget.idx,)),
     );
   }
 
@@ -602,6 +602,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void profile(BuildContext context) {
+    
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Profilepage(idx: widget.idx)),
