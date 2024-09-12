@@ -1,4 +1,4 @@
-// ignore_for_file: unused_import, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, use_super_parameters, library_private_types_in_public_api
+// ignore_for_file: unused_import, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, use_super_parameters, library_private_types_in_public_api, non_constant_identifier_names, avoid_print
 
 import 'dart:convert';
 
@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:lottoproject/config/apitest.dart';
 import 'package:lottoproject/config/config.dart';
 import 'package:lottoproject/model/req/InsertLotto.dart';
+import 'package:lottoproject/model/res/insertResult.dart';
 import 'dart:math';
 import 'dart:developer' as dl;
 import 'package:lottoproject/pages/LoginPage.dart';
@@ -22,13 +23,6 @@ class _AdminPageState extends State<AdminPage> {
   List<String> prizeNumbers =
       List.filled(5, '000000'); // สร้างลิสต์สำหรับเก็บหมายเลขรางวัล
   bool areButtonsDisabled = false; // สถานะปุ่ม
-
-  // สร้างเลขสุ่ม 6 หลัก
-  String generateRandomNumber() {
-    Random random = Random();
-    int randomNumber = random.nextInt(900000) + 1;
-    return randomNumber.toString().padLeft(6, '0');
-  }
 
   // แสดงตัวเลขแบบมีช่องว่างระหว่างตัวเลข
   Widget buildSpacedNumber(String number) {
@@ -193,7 +187,7 @@ class _AdminPageState extends State<AdminPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: areButtonsDisabled ? null : drawPrizes,
+                onPressed: areButtonsDisabled ? null : drawPrizes1,
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       areButtonsDisabled ? Colors.grey : Colors.black,
@@ -216,19 +210,6 @@ class _AdminPageState extends State<AdminPage> {
                 ),
                 child: const Text(
                   'ออกผลรางวัลจากทั้งหมด',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: randomlotto,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 0, 0, 0),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                ),
-                child: const Text(
-                  'สุ่มเลขออกขาย',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
@@ -259,7 +240,6 @@ class _AdminPageState extends State<AdminPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -267,25 +247,173 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // ออกผลรางวัล
-  void drawPrizes() {
+  //show รางวัล lotto ทั้งหมด(สุ่ม)
+  Future<void> drawPrizes() async {
     setState(() {
-      for (int i = 0; i < prizeNumbers.length; i++) {
-        prizeNumbers[i] = generateRandomNumber();
+      areButtonsDisabled = true; // ปิดการใช้งานปุ่มเมื่อเริ่มทำการ draw
+    });
+
+    try {
+      // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
+      List<String> newPrizeNumbers = await randomlotto();
+
+      setState(() {
+        prizeNumbers = newPrizeNumbers;
+        areButtonsDisabled =
+            false; // เปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
+      });
+    } catch (e) {
+      print('Error in drawPrizes: $e');
+      setState(() {
+        areButtonsDisabled = false; // เปิดการใช้งานปุ่มหากเกิดข้อผิดพลาด
+      });
+    }
+  }
+
+  //show รางวัล lotto ที่ซื้อไปเเล้ว(สุ่ม)
+  Future<void> drawPrizes1() async {
+    setState(() {
+      areButtonsDisabled = true; // ปิดการใช้งานปุ่มเมื่อเริ่มทำการ draw
+    });
+
+    try {
+      // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
+      List<String> newPrizeNumbers = await randomlotto_buy();
+
+      setState(() {
+        prizeNumbers = newPrizeNumbers;
+        areButtonsDisabled =
+            false; // เปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
+      });
+    } catch (e) {
+      print('Error in drawPrizes: $e');
+      setState(() {
+        areButtonsDisabled = false; // เปิดการใช้งานปุ่มหากเกิดข้อผิดพลาด
+      });
+    }
+  }
+
+  //random lotto ที่ซื้อไปเเล้วเพื่อออกรางวัล
+  Future<List<String>> randomlotto_buy() async {
+    final url = Uri.parse('https://node-api-lotto.vercel.app/lotto/allBought');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data is List) {
+          final lottoNumbers =
+              data.map((entry) => entry['lotto_number'] as String).toList();
+          lottoNumbers.shuffle();
+          final randomLottoNumbers = lottoNumbers.take(5).toList();
+
+          // Log for debugging
+          dl.log('Random 5 Lotto Numbers: $randomLottoNumbers');
+
+          // Post the results
+          await postLottoResults(randomLottoNumbers);
+
+          return randomLottoNumbers;
+        } else {
+          dl.log('ไม่พบข้อมูลหมายเลขล็อตโต้ใน response');
+          return [];
+        }
+      } else {
+        dl.log(
+            'Error: Failed to fetch lotto numbers. Status code: ${response.statusCode}');
+        return [];
       }
-      areButtonsDisabled = true;
-    });
+    } catch (e) {
+      dl.log('Error: $e');
+      return [];
+    }
   }
 
-  // รีเซ็ตหมายเลขรางวัล
-  void resetPrizes() {
-    setState(() {
-      prizeNumbers = List.filled(5, '000000');
-      areButtonsDisabled = false;
-    });
-    Navigator.pop(context);
+  //random lotto ทั้งหมดเพื่อออกรางวัล
+  Future<List<String>> randomlotto() async {
+    final url = Uri.parse('https://node-api-lotto.vercel.app/lotto/allNumber');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data is List) {
+          final lottoNumbers =
+              data.map((entry) => entry['lotto_number'] as String).toList();
+          lottoNumbers.shuffle();
+          final randomLottoNumbers = lottoNumbers.take(5).toList();
+
+          // Log for debugging
+          dl.log('Random 5 Lotto Numbers: $randomLottoNumbers');
+
+          // Post the results
+          await postLottoResults(randomLottoNumbers);
+
+          return randomLottoNumbers;
+        } else {
+          dl.log('ไม่พบข้อมูลหมายเลขล็อตโต้ใน response');
+          return [];
+        }
+      } else {
+        dl.log(
+            'Error: Failed to fetch lotto numbers. Status code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      dl.log('Error: $e');
+      return [];
+    }
   }
 
+  //insert รางวัล lotto 
+  Future<void> postLottoResults(List<String> lottoNumbers) async {
+    final url =
+        Uri.parse('https://node-api-lotto.vercel.app/result/insertResult');
+
+    for (var number in lottoNumbers) {
+      if (number.isNotEmpty) {
+        // ตรวจสอบว่าหมายเลขล็อตโต้ไม่ว่าง
+        var datainsert = InsertResult(lottoNumber: number);
+
+        try {
+          final response = await http.post(
+            url,
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+            },
+            body: jsonEncode(datainsert.toJson()), // แปลง datainsert เป็น JSON
+          );
+
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            dl.log('โพสต์ข้อมูลหมายเลขล็อตโต้สำเร็จ: $number');
+          } else {
+            dl.log('โพสต์ข้อมูลล้มเหลว รหัสสถานะ: ${response.statusCode}');
+            dl.log('เนื้อหาตอบกลับ: ${response.body}');
+          }
+        } catch (e) {
+          dl.log('ข้อผิดพลาดในการโพสต์ข้อมูล: $e');
+        }
+      } else {
+        dl.log('หมายเลขล็อตโต้ที่ว่างไม่สามารถโพสต์ได้: $number');
+      }
+    }
+  }
+
+  //insert เลข 6 หลัก พร้อมรีเซ็ทเลข เเละ ลงใหม่
   Future<void> showResetDialog(BuildContext context) async {
     // รอให้ผู้ใช้ตอบสนองต่อ Dialog ก่อนที่จะดำเนินการขั้นตอนต่อไป
     bool shouldGenerate = await showDialog(
@@ -338,10 +466,11 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  // สุ่ม เลข 6 หลัก 
   Future<void> generateRandomNumbers(BuildContext context) async {
     final random = Random();
     List<String> randomNumbers = [];
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i <= 100; i++) {
       String randomNumber = '';
       for (int j = 0; j < 6; j++) {
         randomNumber += random.nextInt(10).toString();
@@ -400,6 +529,4 @@ class _AdminPageState extends State<AdminPage> {
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
-
-  void randomlotto() {}
 }
