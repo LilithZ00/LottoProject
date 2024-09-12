@@ -284,7 +284,19 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                onPressed: () => walletpage(context),
+                onPressed: () async {
+                  bool? result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Walletpage(idx: widget.idx),
+                    ),
+                  );
+                  if (result != true) {
+                    setState(() {
+                      updateUserWallet();
+                    });
+                  }
+                },
               ),
               IconButton(
                 icon: const Column(
@@ -306,6 +318,15 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> updateUserWallet() async {
+    try {
+      // Assuming loadDataAsync is your method to load or refresh wallet data
+      await loadDataAsync(); // Replace this with the actual method if it's different
+    } catch (error) {
+      log('Error updating wallet: $error' as num);
+    }
   }
 
   Future<bool> showSignOutPopup(BuildContext context) async {
