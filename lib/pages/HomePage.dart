@@ -267,7 +267,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                onPressed: () => check(context),
+                onPressed: () => chacklotto(context),
               ),
               IconButton(
                 icon: const Column(
@@ -595,7 +595,7 @@ class _HomePageState extends State<HomePage> {
   void chacklotto(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const Chacklottopage()),
+      MaterialPageRoute(builder: (context) => Chacklottopage(idx: widget.idx)),
     );
   }
 
