@@ -277,14 +277,52 @@ class _AdminPageState extends State<AdminPage> {
     });
 
     try {
-      // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
-      List<String> newPrizeNumbers = await randomlotto_buy();
+      final url =
+          Uri.parse('https://node-api-lotto.vercel.app/lotto/allBought');
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      );
 
-      setState(() {
-        prizeNumbers = newPrizeNumbers;
-        areButtonsDisabled =
-            false; // เปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
-      });
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data.length < 5) {
+          // แสดง Dialog แจ้งว่าหมายเลขล็อตโต้ไม่ครบ 5
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('หมายเลขไม่ครบ'),
+                content: Text('ข้อมูลในฐานข้อมูลยังไม่ครบ 5 หมายเลข'),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('ตกลง'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+
+          // เปิดการใช้งานปุ่มหลังจากแสดง Dialog เสร็จสิ้น
+          setState(() {
+            areButtonsDisabled = false;
+          });
+        } else {
+          // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
+          List<String> newPrizeNumbers = await randomlotto_buy();
+
+          setState(() {
+            prizeNumbers = newPrizeNumbers;
+            areButtonsDisabled =
+                false; // เปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
+          });
+        }
+      }
     } catch (e) {
       print('Error in drawPrizes: $e');
       setState(() {
@@ -379,7 +417,7 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  //insert รางวัล lotto 
+  //insert รางวัล lotto
   Future<void> postLottoResults(List<String> lottoNumbers) async {
     final url =
         Uri.parse('https://node-api-lotto.vercel.app/result/insertResult');
@@ -413,7 +451,7 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  //insert เลข 6 หลัก พร้อมรีเซ็ทเลข เเละ ลงใหม่
+  //dalete lottoAll เเล้ว เรียกใช้ deleteUser เเละ deleteResult
   Future<void> showResetDialog(BuildContext context) async {
     // รอให้ผู้ใช้ตอบสนองต่อ Dialog ก่อนที่จะดำเนินการขั้นตอนต่อไป
     bool shouldGenerate = await showDialog(
@@ -456,9 +494,12 @@ class _AdminPageState extends State<AdminPage> {
         if (response.statusCode == 200) {
           dl.log('Successfully deleted all lottos');
           // ดำเนินการ generate random numbers เมื่อข้อมูลถูกลบสำเร็จ
-          await generateRandomNumbers(context);
+          // await generateRandomNumbers(context);
+          await deleteResult();
+          await deleteUser();
         } else {
           dl.log('Failed to delete lottos');
+          await generateRandomNumbers(context);
         }
       } catch (e) {
         dl.log('Error deleting lottos: $e');
@@ -466,7 +507,53 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  // สุ่ม เลข 6 หลัก 
+  //delete  usersAll เเล้วก็เรียกใช้ generateRandomNumbers เพื่อ insert เลข 6 หลักที่สุ่มเข้า data dase
+  Future<void> deleteUser() async {
+    final url =
+        Uri.parse('https://node-api-lotto.vercel.app/profile/deleteAllUsers');
+
+    try {
+      var response = await http.delete(
+        url,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      );
+      if (response.statusCode == 200) {
+        dl.log('Successfully deleted all users');
+        // ดำเนินการ generate random numbers เมื่อข้อมูลถูกลบสำเร็จ
+        await generateRandomNumbers(context);
+      } else {
+        dl.log('Failed to delete users');
+        await generateRandomNumbers(context);
+      }
+    } catch (e) {
+      dl.log('Error deleting users: $e');
+    }
+  }
+
+  //delete resultAll
+  Future<void> deleteResult() async{
+    final url =
+        Uri.parse('https://node-api-lotto.vercel.app/lotto/deleteResult');
+    try {
+      var response = await http.delete(
+        url,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      );
+      if (response.statusCode == 200) {
+        dl.log('Successfully deleted all result');
+      } else {
+        dl.log('Failed to delete result');
+      }
+    } catch (e) {
+      dl.log('Error deleting result: $e');
+    }
+  }
+  
+  // สุ่ม เลข 6 หลัก
   Future<void> generateRandomNumbers(BuildContext context) async {
     final random = Random();
     List<String> randomNumbers = [];
