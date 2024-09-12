@@ -219,19 +219,6 @@ class _AdminPageState extends State<AdminPage> {
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: randomlotto,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 0, 0, 0),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                ),
-                child: const Text(
-                  'สุ่มเลขออกขาย',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -300,7 +287,6 @@ class _AdminPageState extends State<AdminPage> {
             TextButton(
               child: Text('Cancel'),
               onPressed: () {
-                generateRandomNumbers(context);
                 Navigator.of(context).pop(false); // ส่งค่า false ถ้ากด Cancel
               },
             ),
@@ -342,7 +328,7 @@ class _AdminPageState extends State<AdminPage> {
   Future<void> generateRandomNumbers(BuildContext context) async {
     final random = Random();
     List<String> randomNumbers = [];
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i <= 100; i++) {
       String randomNumber = '';
       for (int j = 0; j < 6; j++) {
         randomNumber += random.nextInt(10).toString();
