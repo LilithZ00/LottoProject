@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 
-class Chacklottopage extends StatelessWidget {
-  const Chacklottopage({super.key});
+class Chacklottopage extends StatefulWidget {
+  final int idx; // Make sure to include this as a required parameter
 
+  const Chacklottopage({super.key, required this.idx});
+
+  @override
+  _ChacklottopageState createState() => _ChacklottopageState();
+}
+
+class _ChacklottopageState extends State<Chacklottopage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CheckLotto'),
+        title: const Text('Check Lotto'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
