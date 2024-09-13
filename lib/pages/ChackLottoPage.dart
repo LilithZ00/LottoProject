@@ -1,9 +1,10 @@
-// ignore_for_file: non_constant_identifier_names, library_private_types_in_public_api
+// ignore_for_file: non_constant_identifier_names, library_private_types_in_public_api, prefer_typing_uninitialized_variables
 
 import 'package:flutter/material.dart';
 
 class Chacklottopage extends StatefulWidget {
-  const Chacklottopage({super.key});
+  final idx;
+  const Chacklottopage({super.key, required this.idx});
 
   @override
   _CheckLottoPageState createState() => _CheckLottoPageState();
@@ -31,7 +32,7 @@ class _CheckLottoPageState extends State<Chacklottopage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CheckLotto'),
+        title: const Text('Check Lotto'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
