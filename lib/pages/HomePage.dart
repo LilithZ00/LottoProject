@@ -439,8 +439,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> sure(BuildContext context, int userId, int lottoId) async {
-  dv.log('userId:' + userId.toString());
-  dv.log('lottoId:' + lottoId.toString());
+  // dv.log('userId:' + userId.toString());
+  // dv.log('lottoId:' + lottoId.toString());
 
   // Check if lotto results are already available
   bool resultsOut = await checkLottoResults();
@@ -521,8 +521,8 @@ class _HomePageState extends State<HomePage> {
 Future<bool> checkLottoResults() async {
   try {
     var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/result/'));
-    dv.log('Response status code: ${response.statusCode}');
-    dv.log('Response body: ${response.body}');
+    // dv.log('Response status code: ${response.statusCode}');
+    // dv.log('Response body: ${response.body}');
     
     if (response.statusCode == 200) {
       // ตรวจสอบว่าข้อมูลไม่ว่างเปล่าและมีเนื้อหาที่ต้องการ
@@ -702,7 +702,7 @@ void showLottoResultsOutMessage(BuildContext context) {
     try {
       var response = await http.get(
           Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
-      dv.log(response.body);
+      // dv.log(response.body);
     } catch (e) {
       dv.log('Error fetching data: $e');
     }
