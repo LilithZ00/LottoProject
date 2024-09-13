@@ -12,7 +12,6 @@ import 'package:lottoproject/pages/WalletPage.dart';
 import 'package:lottoproject/shared/app_Data.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-
 class HomePage extends StatefulWidget {
   final int idx;
   const HomePage({super.key, required this.idx});
