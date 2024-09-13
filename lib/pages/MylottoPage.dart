@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as dv;
@@ -75,24 +77,5 @@ class _MylottopageState extends State<Mylottopage> {
         ),
       ),
     );
-  }
-
-  Future<void> showmylotto() async {
-    try {
-      // Include the user ID (widget.idx) in the API call URL
-      var response = await http.get(Uri.parse(
-          'https://node-api-lotto.vercel.app/lotto/check/${widget.idx}'));
-      var data = json.decode(response.body);
-      dv.log('${widget.idx}');
-      if (data is List) {
-        setState(() {
-          lottoData = List<Map<String, dynamic>>.from(data);
-        });
-      } else {
-        print('Data is not a list');
-      }
-    } catch (e) {
-      dv.log('Error fetching lotto data: $e');
-    }
   }
 }
