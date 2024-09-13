@@ -138,7 +138,7 @@ class _MylottopageState extends State<Mylottopage> {
         });
       } else {
         setState(() {
-          lottoStatus = 'รอผล'; // Waiting for the results
+          lottoStatus = ''; // Waiting for the results
         });
       }
     } catch (e) {
