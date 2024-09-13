@@ -271,11 +271,28 @@ class _AdminPageState extends State<AdminPage> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data.length > 0) {
-          setState(() {
-            areButtonsDisabled =
-                true; // ปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
-          });
-        } else {
+              // แสดง Dialog ว่ามีการออกรางวัลแล้ว
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('แจ้งเตือน'),
+                    content: Text('มีการออกรางวัลแล้ว'),
+                    actions: [
+                      TextButton(
+                        child: Text('ตกลง'),
+                        onPressed: () {
+                          setState(() {
+                            areButtonsDisabled = false; // เปิดการใช้งานปุ่ม
+                          });
+                          Navigator.of(context).pop(); // ปิด Dialog
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            } else {
           // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
           List<String> newPrizeNumbers = await randomlotto();
 
@@ -350,10 +367,27 @@ class _AdminPageState extends State<AdminPage> {
           if (response1.statusCode == 200) {
             final data1 = json.decode(response1.body);
             if (data1.length > 0) {
-              setState(() {
-                areButtonsDisabled =
-                    true; // ปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
-              });
+              // แสดง Dialog ว่ามีการออกรางวัลแล้ว
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('แจ้งเตือน'),
+                    content: Text('มีการออกรางวัลแล้ว'),
+                    actions: [
+                      TextButton(
+                        child: Text('ตกลง'),
+                        onPressed: () {
+                          setState(() {
+                            areButtonsDisabled = false; // เปิดการใช้งานปุ่ม
+                          });
+                          Navigator.of(context).pop(); // ปิด Dialog
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
             } else {
               // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
               List<String> newPrizeNumbers = await randomlotto_buy();
