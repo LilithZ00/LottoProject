@@ -14,12 +14,14 @@ import 'package:lottoproject/pages/WalletPage.dart';
 import 'package:lottoproject/shared/app_Data.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+
 class HomePage extends StatefulWidget {
   final int idx;
   const HomePage({super.key, required this.idx});
   @override
   _HomePageState createState() => _HomePageState();
 }
+
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchLottoNumber = TextEditingController();
   //เก็บข้อมูลดั้งเดิม
@@ -31,7 +33,6 @@ class _HomePageState extends State<HomePage> {
 
   bool isProcessing = false;
 
-
   String server = '';
   List<Map<String, dynamic>> lottoData = [];
 
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
     loadData = loadDataAsync();
     loadLotto = showlotto();
     checkLottoData = check(context);
-    
+
     Config.getConfig().then((value) {
       setState(() {
         server = value['serverAPI'];
@@ -182,8 +183,7 @@ class _HomePageState extends State<HomePage> {
                                               BorderRadius.circular(20.0),
                                         ),
                                       ),
-                                      child:
-                                      const Text(
+                                      child: const Text(
                                         'ซื้อ 100 บาท',
                                         style: TextStyle(color: Colors.white),
                                       ),
@@ -260,7 +260,19 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                onPressed: () => chacklotto(context),
+                onPressed: () async {
+                  bool? result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Chacklottopage(idx: widget.idx),
+                    ),
+                  );
+                  if (result != true) {
+                    setState(() {
+                      updateUserWallet();
+                    });
+                  }
+                },
               ),
               IconButton(
                 icon: const Column(
@@ -427,136 +439,134 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> sure(BuildContext context, int userId, int lottoId) async {
-  dv.log('userId:' + userId.toString());
-  dv.log('lottoId:' + lottoId.toString());
+    // dv.log('userId:' + userId.toString());
+    // dv.log('lottoId:' + lottoId.toString());
 
-  // Check if lotto results are already available
-  bool resultsOut = await checkLottoResults();
-  if (resultsOut) {
-    // If results are out, show a message and prevent buying
-    showLottoResultsOutMessage(context);
-    return;
-  }
+    // Check if lotto results are already available
+    bool resultsOut = await checkLottoResults();
+    if (resultsOut) {
+      // If results are out, show a message and prevent buying
+      showLottoResultsOutMessage(context);
+      return;
+    }
 
-  var appData = Provider.of<AppData>(context, listen: false);
-  int userWallet = appData.user.userWallet;
-
-  bool? confirmPurchase = await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "คุณต้องการจะซื้อใช่หรือไม่",
-              style: TextStyle(fontSize: 19),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    var appData = Provider.of<AppData>(context, listen: false);
+    int userWallet = appData.user.userWallet;
+    bool? confirmPurchase = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.green[400],
-                ),
-                child: const Text(
-                  "ตกลง",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(userWallet >= 100);
-                },
-              ),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.red[400],
-                ),
-                child: const Text(
-                  "ยกเลิก",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+              Text(
+                "คุณต้องการจะซื้อใช่หรือไม่",
+                style: TextStyle(fontSize: 19),
               ),
             ],
           ),
-        ],
-      );
-    },
-  );
-
-  if (confirmPurchase == true) {
-    setState(() {
-      isProcessing = true;
-    });
-    await purchaseLotto(userId, lottoId);
-    appData.updateUserWallet(userWallet - 100);
-    await showSuccess(context);
-
-    setState(() {
-      isProcessing = false;
-      loadLotto = showlotto();
-    });
-  } else if (confirmPurchase == false) {
-    showFailure(context);
-  }
-}
-
-Future<bool> checkLottoResults() async {
-  try {
-    var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/result/'));
-    dv.log('Response status code: ${response.statusCode}');
-    dv.log('Response body: ${response.body}');
-    if (response.statusCode == 200) {
-      // ตรวจสอบว่าข้อมูลไม่ว่างเปล่าและมีเนื้อหาที่ต้องการ
-      var data = jsonDecode(response.body) as List;
-      if (data.isNotEmpty) {
-        return true; // ผลรางวัลออกแล้ว
-      }
-    }
-  } catch (e) {
-    dv.log('Error checking lotto results: $e');
-  }
-  // ผลรางวัลยังไม่ออกหรือเกิดข้อผิดพลาด
-  return false;
-}
-
-void showLottoResultsOutMessage(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error, color: Colors.red, size: 50),
-            SizedBox(height: 10),
-            Text("ผลรางวัลได้ออกแล้ว"),
-            Text("ไม่สามารถซื้อได้อีกต่อไป"),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.green[400],
+                  ),
+                  child: const Text(
+                    "ตกลง",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(userWallet >= 100);
+                  },
+                ),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.red[400],
+                  ),
+                  child: const Text(
+                    "ยกเลิก",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
           ],
-        ),
-        actions: <Widget>[
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red[400],
-            ),
-            child: const Text(
-              "ตกลง",
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+        );
+      },
+    );
+
+    if (confirmPurchase == true) {
+      setState(() {
+        isProcessing = true;
+      });
+      await purchaseLotto(userId, lottoId);
+      appData.updateUserWallet(userWallet - 100);
+      await showSuccess(context);
+      setState(() {
+        isProcessing = false;
+        loadLotto = showlotto();
+      });
+    } else if (confirmPurchase == false) {
+      showFailure(context);
+    }
+  }
+
+  Future<bool> checkLottoResults() async {
+    try {
+      var response = await http
+          .get(Uri.parse('https://node-api-lotto.vercel.app/result/'));
+      dv.log('Response status code: ${response.statusCode}');
+      dv.log('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        // ตรวจสอบว่าข้อมูลไม่ว่างเปล่าและมีเนื้อหาที่ต้องการ
+        var data = jsonDecode(response.body) as List;
+        if (data.isNotEmpty) {
+          return true; // ผลรางวัลออกแล้ว
+        }
+      }
+    } catch (e) {
+      dv.log('Error checking lotto results: $e');
+    }
+    return false; // ผลรางวัลยังไม่ออก
+  }
+
+  void showLottoResultsOutMessage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error, color: Colors.red, size: 50),
+              SizedBox(height: 10),
+              Text("ผลรางวัลได้ออกแล้ว"),
+              Text("ไม่สามารถซื้อได้อีกต่อไป"),
+            ],
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: <Widget>[
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.red[400],
+              ),
+              child: const Text(
+                "ตกลง",
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> showSuccess(BuildContext context) async {
     return showDialog(
@@ -594,17 +604,14 @@ void showLottoResultsOutMessage(BuildContext context) {
   }
 
   void _searchLotto(String query) {
-  final filteredData = allLottoData.where((lotto) {
-    final lottoNumber = lotto['lotto_number'].toString();
-    return lottoNumber.contains(query);
-  }).toList();
-
-  setState(() {
-    lottoData = filteredData;
-  });
-}
-
-
+    final filteredData = allLottoData.where((lotto) {
+      final lottoNumber = lotto['lotto_number'].toString();
+      return lottoNumber.contains(query);
+    }).toList();
+    setState(() {
+      lottoData = filteredData;
+    });
+  }
 
   void showFailure(BuildContext context) {
     showDialog(
@@ -666,24 +673,23 @@ void showLottoResultsOutMessage(BuildContext context) {
   }
 
   Future<void> showlotto() async {
-  try {
-    var response = await http.get(
-        Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
-    var data = json.decode(response.body);
+    try {
+      var response = await http.get(
+          Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
+      var data = json.decode(response.body);
 
-    if (data is List) {
-      setState(() {
-        allLottoData = List<Map<String, dynamic>>.from(data);
-        lottoData = List<Map<String, dynamic>>.from(data);
-      });
-    } else {
-      dv.log('Data is not a list');
+      if (data is List) {
+        setState(() {
+          allLottoData = List<Map<String, dynamic>>.from(data);
+          lottoData = List<Map<String, dynamic>>.from(data);
+        });
+      } else {
+        dv.log('Data is not a list');
+      }
+    } catch (e) {
+      dv.log('Error fetching lotto data: $e');
     }
-  } catch (e) {
-    dv.log('Error fetching lotto data: $e');
   }
-}
-
 
   Future<void> check(BuildContext context) async {
     try {

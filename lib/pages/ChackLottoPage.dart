@@ -371,25 +371,24 @@ class _CheckLottoPageState extends State<Chacklottopage> {
     }
   }
 
-  void showWinningDialog(
-      BuildContext context, String prizeCategory, int prizeAmount) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('ยินดีด้วย'),
-          content: Text(
-              'คุณถูกรางวัลที่ $prizeCategory\nคุณได้รับเงิน $prizeAmount บาท'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('ตกลง'),
-              onPressed: () {
-                Navigator.of(context).pop(); // ปิด popup
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void showWinningDialog(BuildContext context, String prizeCategory, int prizeAmount) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('ยินดีด้วย'),
+        content: Text('คุณถูกรางวัลที่ $prizeCategory\nคุณได้รับเงิน $prizeAmount บาท'),
+        actions: <Widget>[
+          TextButton(
+            child: Text('ตกลง'),
+            onPressed: () {
+              Navigator.of(context).pop(true); // ส่งค่า true กลับเพื่ออัพเดทเงิน
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }
