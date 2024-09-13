@@ -1,20 +1,37 @@
+// ignore_for_file: non_constant_identifier_names, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 
 class Chacklottopage extends StatefulWidget {
-  final int idx; // Make sure to include this as a required parameter
-
-  const Chacklottopage({super.key, required this.idx});
+  const Chacklottopage({super.key});
 
   @override
-  _ChacklottopageState createState() => _ChacklottopageState();
+  _CheckLottoPageState createState() => _CheckLottoPageState();
 }
 
-class _ChacklottopageState extends State<Chacklottopage> {
+class _CheckLottoPageState extends State<Chacklottopage> {
+  List<String> prizeNumbers = List.filled(6, 'X'); // สถานะของหมายเลขรางวัลที่ 1
+  List<String> userNumbers = List.filled(6, 'X'); // สถานะของหมายเลขที่ซื้อ
+
+  // ฟังก์ชันสำหรับการอัปเดตหมายเลขรางวัล (จำลอง)
+  void updatePrizeNumbers() {
+    setState(() {
+      prizeNumbers = ['1', '2', '3', '4', '5', '6']; // เปลี่ยนหมายเลขรางวัล
+    });
+  }
+
+  // ฟังก์ชันสำหรับการอัปเดตหมายเลขที่ซื้อ (จำลอง)
+  void updateUserNumbers() {
+    setState(() {
+      userNumbers = ['9', '8', '7', '6', '5', '4']; // เปลี่ยนหมายเลขที่ซื้อ
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Check Lotto'),
+        title: const Text('CheckLotto'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -38,17 +55,17 @@ class _ChacklottopageState extends State<Chacklottopage> {
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(6, (index) {
+                      children: prizeNumbers.map((number) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4.0),
                           child: Container(
                             width: 32,
                             height: 48,
                             color: Colors.white,
-                            child: const Center(
+                            child: Center(
                               child: Text(
-                                'X',
-                                style: TextStyle(
+                                number,
+                                style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
@@ -57,7 +74,7 @@ class _ChacklottopageState extends State<Chacklottopage> {
                             ),
                           ),
                         );
-                      }),
+                      }).toList(),
                     ),
                     const SizedBox(height: 8),
                     PrizeRow('รางวัลที่ 2', 'x x x x x x'),
@@ -85,18 +102,17 @@ class _ChacklottopageState extends State<Chacklottopage> {
                               Expanded(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: List.generate(6, (index) {
+                                  children: userNumbers.map((number) {
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
                                       child: Container(
                                         width: 25,
                                         height: 41,
                                         color: Colors.grey[200],
-                                        child: const Center(
-                                          // เลขที่ซื้อ
+                                        child: Center(
                                           child: Text(
-                                            'X',
-                                            style: TextStyle(
+                                            number,
+                                            style: const TextStyle(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black,
@@ -105,13 +121,15 @@ class _ChacklottopageState extends State<Chacklottopage> {
                                         ),
                                       ),
                                     );
-                                  }),
+                                  }).toList(),
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              const ElevatedButton(
-                                onPressed: null,
-                                child: Text(
+                              ElevatedButton(
+                                onPressed: () {
+                                  updateUserNumbers(); // อัปเดตหมายเลขที่ซื้อเมื่อกดปุ่ม
+                                },
+                                child: const Text(
                                   'รอผล',
                                   style: TextStyle(
                                     color: Color.fromARGB(255, 255, 255, 255),
