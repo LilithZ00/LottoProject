@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, unused_import, use_build_context_synchronously, unused_local_variable
+// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, unused_import, use_build_context_synchronously, unused_local_variable, library_private_types_in_public_api
 
 import 'dart:convert';
 import 'dart:math';
