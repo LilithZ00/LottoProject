@@ -11,6 +11,7 @@ import 'dart:math';
 import 'dart:developer' as dl;
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
@@ -23,6 +24,12 @@ class _AdminPageState extends State<AdminPage> {
   List<String> prizeNumbers =
       List.filled(5, '000000'); // สร้างลิสต์สำหรับเก็บหมายเลขรางวัล
   bool areButtonsDisabled = false; // สถานะปุ่ม
+
+  @override
+  void initState() {
+    super.initState();
+    loadPrizeNumbers(); // โหลดหมายเลขรางวัลจาก SharedPreferences เมื่อเริ่มต้น
+  }
 
   // แสดงตัวเลขแบบมีช่องว่างระหว่างตัวเลข
   Widget buildSpacedNumber(String number) {
@@ -254,14 +261,33 @@ class _AdminPageState extends State<AdminPage> {
     });
 
     try {
-      // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
-      List<String> newPrizeNumbers = await randomlotto();
+      final url = Uri.parse('https://node-api-lotto.vercel.app/result/');
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data.length > 0) {
+          setState(() {
+            areButtonsDisabled =
+                true; // ปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
+          });
+        } else {
+          // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
+          List<String> newPrizeNumbers = await randomlotto();
 
-      setState(() {
-        prizeNumbers = newPrizeNumbers;
-        areButtonsDisabled =
-            false; // เปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
-      });
+          setState(() {
+            prizeNumbers = newPrizeNumbers;
+            areButtonsDisabled =
+                false; // เปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
+          });
+          // เก็บข้อมูลหมายเลขรางวัลลงใน SharedPreferences
+          savePrizeNumbers();
+        }
+      }
     } catch (e) {
       print('Error in drawPrizes: $e');
       setState(() {
@@ -313,14 +339,34 @@ class _AdminPageState extends State<AdminPage> {
             areButtonsDisabled = false;
           });
         } else {
-          // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
-          List<String> newPrizeNumbers = await randomlotto_buy();
+          final url = Uri.parse('https://node-api-lotto.vercel.app/result/');
+          final response1 = await http.get(
+            url,
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+            },
+          );
 
-          setState(() {
-            prizeNumbers = newPrizeNumbers;
-            areButtonsDisabled =
-                false; // เปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
-          });
+          if (response1.statusCode == 200) {
+            final data1 = json.decode(response1.body);
+            if (data1.length > 0) {
+              setState(() {
+                areButtonsDisabled =
+                    true; // ปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
+              });
+            } else {
+              // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
+              List<String> newPrizeNumbers = await randomlotto_buy();
+
+              setState(() {
+                prizeNumbers = newPrizeNumbers;
+                areButtonsDisabled =
+                    false; // เปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
+              });
+              // เก็บข้อมูลหมายเลขรางวัลลงใน SharedPreferences
+              savePrizeNumbers();
+            }
+          }
         }
       }
     } catch (e) {
@@ -497,6 +543,14 @@ class _AdminPageState extends State<AdminPage> {
           // await generateRandomNumbers(context);
           await deleteResult();
           await deleteUser();
+
+          // รีเซ็ตค่า prizeNumbers ให้เป็น "000000" ทั้งหมด
+          setState(() {
+            prizeNumbers = List.filled(5, '000000');
+            areButtonsDisabled = false;
+          });
+          // บันทึกค่า prizeNumbers ที่รีเซ็ตแล้ว
+          await savePrizeNumbers();
         } else {
           dl.log('Failed to delete lottos');
           await generateRandomNumbers(context);
@@ -519,7 +573,7 @@ class _AdminPageState extends State<AdminPage> {
           "Content-Type": "application/json; charset=utf-8",
         },
       );
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         dl.log('Successfully deleted all users');
         // ดำเนินการ generate random numbers เมื่อข้อมูลถูกลบสำเร็จ
         await generateRandomNumbers(context);
@@ -533,7 +587,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   //delete resultAll
-  Future<void> deleteResult() async{
+  Future<void> deleteResult() async {
     final url =
         Uri.parse('https://node-api-lotto.vercel.app/lotto/deleteResult');
     try {
@@ -552,7 +606,7 @@ class _AdminPageState extends State<AdminPage> {
       dl.log('Error deleting result: $e');
     }
   }
-  
+
   // สุ่ม เลข 6 หลัก
   Future<void> generateRandomNumbers(BuildContext context) async {
     final random = Random();
@@ -616,5 +670,20 @@ class _AdminPageState extends State<AdminPage> {
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
+  }
+
+// บันทึกหมายเลขรางวัลลงใน SharedPreferences
+  Future<void> savePrizeNumbers() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('prizeNumbers', prizeNumbers);
+  }
+
+// โหลดหมายเลขรางวัลจาก SharedPreferences
+  Future<void> loadPrizeNumbers() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prizeNumbers =
+          prefs.getStringList('prizeNumbers') ?? List.filled(5, '000000');
+    });
   }
 }
