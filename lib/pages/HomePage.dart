@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   bool isProcessing = false;
 
+
   String server = '';
   List<Map<String, dynamic>> lottoData = [];
 
