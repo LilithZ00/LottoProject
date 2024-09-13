@@ -21,7 +21,7 @@ class _MylottopageState extends State<Mylottopage> {
   String server = '';
   String lottoStatus = ''; // Store checkmylotto result here
   String selectedFilter = 'ทั้งหมด'; // Default filter
-  List<String> filterOptions = ['ทั้งหมด', 'ถูกรางวัล', 'ไม่ถูกรางวัล'];
+  List<String> filterOptions = ['ทั้งหมด', 'ถูกรางวัล', 'ไม่ถูกรางวัล', 'รอผล'];
 
   @override
   void initState() {
@@ -62,16 +62,14 @@ class _MylottopageState extends State<Mylottopage> {
               }).toList(),
             ),
 
-            // Remove or reduce the SizedBox to minimize the space
-            const SizedBox(height: 0), // Reduce from 16 to 8
+            const SizedBox(height: 8),
 
             Text(
               lottoStatus.isNotEmpty ? lottoStatus : '',
               style: const TextStyle(fontSize: 18, color: Colors.blue),
             ),
 
-            // Reduce the SizedBox height here as well
-            const SizedBox(height: 8), // Reduced from 16 to 8
+            const SizedBox(height: 8),
 
             // Expanded to show the lotto numbers
             Expanded(
@@ -142,7 +140,11 @@ class _MylottopageState extends State<Mylottopage> {
     } else if (selectedFilter == 'ไม่ถูกรางวัล') {
       return lottoData
           .where((lottoItem) =>
-              !resultNumbers.contains(lottoItem['lotto_number']))
+              !resultNumbers.contains(lottoItem['lotto_number']) && resultNumbers.isNotEmpty)
+          .toList();
+    } else if (selectedFilter == 'รอผล') {
+      return lottoData
+          .where((lottoItem) => resultNumbers.isEmpty)
           .toList();
     }
     return lottoData;
