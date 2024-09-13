@@ -6,7 +6,6 @@ import 'dart:developer' as dv;
 
 import 'package:flutter/material.dart';
 import 'package:lottoproject/config/config.dart';
-import 'package:lottoproject/model/res/AllLottos.dart';
 import 'package:lottoproject/pages/LoginPage.dart';
 import 'package:lottoproject/pages/ChackLottoPage.dart';
 import 'package:lottoproject/pages/MylottoPage.dart';
@@ -18,18 +17,14 @@ import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   final int idx;
-
   const HomePage({super.key, required this.idx});
-
   @override
   _HomePageState createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
-  final int walletBalance = 50; // ดึง api
-  final int ticketPrice = 100;
-
   final TextEditingController _searchLottoNumber = TextEditingController();
+  //เก็บข้อมูลดั้งเดิม
+  List<Map<String, dynamic>> allLottoData = [];
 
   late Future<void> loadData;
   late Future<void> loadLotto;
@@ -46,7 +41,7 @@ class _HomePageState extends State<HomePage> {
     loadData = loadDataAsync();
     loadLotto = showlotto();
     checkLottoData = check(context);
-
+    
     Config.getConfig().then((value) {
       setState(() {
         server = value['serverAPI'];
@@ -67,11 +62,6 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: const Color.fromRGBO(245, 239, 247, 1),
           title: Consumer<AppData>(
             builder: (context, appData, child) {
-              if (appData.user.userId != widget.idx) {
-                return Center(
-                  child: Text('User data not available'),
-                );
-              }
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -178,7 +168,6 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     ElevatedButton(
                                       onPressed: () {
-                                        
                                         var appData = Provider.of<AppData>(
                                             context,
                                             listen: false);
@@ -324,8 +313,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> updateUserWallet() async {
     try {
-      // Assuming loadDataAsync is your method to load or refresh wallet data
-      await loadDataAsync(); // Replace this with the actual method if it's different
+      await loadDataAsync();
     } catch (error) {
       log('Error updating wallet: $error' as num);
     }
@@ -521,8 +509,8 @@ class _HomePageState extends State<HomePage> {
 Future<bool> checkLottoResults() async {
   try {
     var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/result/'));
-    // dv.log('Response status code: ${response.statusCode}');
-    // dv.log('Response body: ${response.body}');
+    dv.log('Response status code: ${response.statusCode}');
+    dv.log('Response body: ${response.body}');
     
     if (response.statusCode == 200) {
       // ตรวจสอบว่าข้อมูลไม่ว่างเปล่าและมีเนื้อหาที่ต้องการ
@@ -537,7 +525,6 @@ Future<bool> checkLottoResults() async {
   // ผลรางวัลยังไม่ออกหรือเกิดข้อผิดพลาด
   return false;
 }
-
 
 void showLottoResultsOutMessage(BuildContext context) {
   showDialog(
@@ -571,8 +558,6 @@ void showLottoResultsOutMessage(BuildContext context) {
     },
   );
 }
-
-
 
   Future<void> showSuccess(BuildContext context) async {
     return showDialog(
@@ -610,15 +595,17 @@ void showLottoResultsOutMessage(BuildContext context) {
   }
 
   void _searchLotto(String query) {
-    final filteredData = lottoData.where((lotto) {
-      final lottoNumber = lotto['lotto_number'].toString();
-      return lottoNumber.contains(query);
-    }).toList();
+  final filteredData = allLottoData.where((lotto) {
+    final lottoNumber = lotto['lotto_number'].toString();
+    return lottoNumber.contains(query);
+  }).toList();
 
-    setState(() {
-      lottoData = filteredData;
-    });
-  }
+  setState(() {
+    lottoData = filteredData;
+  });
+}
+
+
 
   void showFailure(BuildContext context) {
     showDialog(
@@ -681,17 +668,17 @@ void showLottoResultsOutMessage(BuildContext context) {
   }
 
   Future<void> showlotto() async {
-    try {
-      var response = await http.get(
-          Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
-      var data = json.decode(response.body);
+  try {
+    var response = await http.get(
+        Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
+    var data = json.decode(response.body);
 
       if (data is List) {
         setState(() {
           lottoData = List<Map<String, dynamic>>.from(data);
         });
       } else {
-        dv.log('Data is not a list');
+        print('Data is not a list');
       }
     } catch (e) {
       dv.log('Error fetching lotto data: $e');
