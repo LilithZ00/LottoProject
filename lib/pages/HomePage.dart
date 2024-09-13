@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, unused_import, use_build_context_synchronously, unused_local_variable, library_private_types_in_public_api
-
 import 'dart:convert';
 import 'dart:math';
 import 'dart:developer' as dv;
@@ -427,8 +425,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> sure(BuildContext context, int userId, int lottoId) async {
-  // dv.log('userId:' + userId.toString());
-  // dv.log('lottoId:' + lottoId.toString());
+  dv.log('userId:' + userId.toString());
+  dv.log('lottoId:' + lottoId.toString());
 
   // Check if lotto results are already available
   bool resultsOut = await checkLottoResults();
@@ -511,7 +509,6 @@ Future<bool> checkLottoResults() async {
     var response = await http.get(Uri.parse('https://node-api-lotto.vercel.app/result/'));
     dv.log('Response status code: ${response.statusCode}');
     dv.log('Response body: ${response.body}');
-    
     if (response.statusCode == 200) {
       // ตรวจสอบว่าข้อมูลไม่ว่างเปล่าและมีเนื้อหาที่ต้องการ
       var data = jsonDecode(response.body) as List;
@@ -643,7 +640,7 @@ void showLottoResultsOutMessage(BuildContext context) {
   void mylotto(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Mylottopage(idx: widget.idx,)),
+      MaterialPageRoute(builder: (context) => Mylottopage(idx: widget.idx)),
     );
   }
 
@@ -655,7 +652,6 @@ void showLottoResultsOutMessage(BuildContext context) {
   }
 
   void profile(BuildContext context) {
-    
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Profilepage(idx: widget.idx)),
@@ -673,23 +669,25 @@ void showLottoResultsOutMessage(BuildContext context) {
         Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
     var data = json.decode(response.body);
 
-      if (data is List) {
-        setState(() {
-          lottoData = List<Map<String, dynamic>>.from(data);
-        });
-      } else {
-        print('Data is not a list');
-      }
-    } catch (e) {
-      dv.log('Error fetching lotto data: $e');
+    if (data is List) {
+      setState(() {
+        allLottoData = List<Map<String, dynamic>>.from(data);
+        lottoData = List<Map<String, dynamic>>.from(data);
+      });
+    } else {
+      print('Data is not a list');
     }
+  } catch (e) {
+    dv.log('Error fetching lotto data: $e');
   }
+}
+
 
   Future<void> check(BuildContext context) async {
     try {
       var response = await http.get(
           Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
-      // dv.log(response.body);
+      dv.log(response.body);
     } catch (e) {
       dv.log('Error fetching data: $e');
     }
