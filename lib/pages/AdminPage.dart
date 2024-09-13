@@ -275,6 +275,8 @@ class _AdminPageState extends State<AdminPage> {
             areButtonsDisabled =
                 true; // ปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
           });
+          // เก็บข้อมูลหมายเลขรางวัลลงใน SharedPreferences
+          savePrizeNumbers();
         } else {
           // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
           List<String> newPrizeNumbers = await randomlotto();
@@ -354,6 +356,8 @@ class _AdminPageState extends State<AdminPage> {
                 areButtonsDisabled =
                     true; // ปิดการใช้งานปุ่มหลังจากการ draw เสร็จสิ้น
               });
+              // เก็บข้อมูลหมายเลขรางวัลลงใน SharedPreferences
+              savePrizeNumbers();
             } else {
               // เรียกใช้ randomlotto() และรอให้การทำงานเสร็จสิ้น
               List<String> newPrizeNumbers = await randomlotto_buy();
@@ -663,7 +667,7 @@ class _AdminPageState extends State<AdminPage> {
     // ปิด Dialog หลังจากทำงานเสร็จ
     Navigator.of(context).pop();
   }
- 
+
   // กลับไปที่หน้า LoginPage
   loginPage(BuildContext context) {
     Navigator.pop(
