@@ -264,24 +264,29 @@ Widget build(BuildContext context) {
 
 
   Future<void> showmylotto() async {
-    try {
-      // Include the user ID (widget.idx) in the API call URL
-      var response = await http.get(Uri.parse(
-          'https://node-api-lotto.vercel.app/lotto/check/${widget.idx}'));
-      var data = json.decode(response.body);
-      dv.log('${widget.idx}');
-      if (data is List) {
-        setState(() {
-          lottoData = List<Map<String, dynamic>>.from(data);
-          dv.log(lottoData.length.toString());
-        });
-      } else {
-        print('Data is not a list');
-      }
-    } catch (e) {
-      dv.log('Error fetching lotto data: $e');
+  try {
+    // Include the user ID (widget.idx) in the API call URL
+    var response = await http.get(Uri.parse(
+        'https://node-api-lotto.vercel.app/lotto/check/${widget.idx}'));
+
+    // Print the raw response body for debugging
+    dv.log('Response Body: ${response.body}');
+
+    // Try to decode the response body
+    var data = json.decode(response.body);
+
+    if (data is List) {
+      setState(() {
+        lottoData = List<Map<String, dynamic>>.from(data);
+        dv.log('Lotto Data Length: ${lottoData.length}');
+      });
+    } else {
+      dv.log('Data is not a list');
     }
+  } catch (e) {
+    dv.log('Error fetching lotto data: $e');
   }
+}
 
   Future<void> showResult() async {
     try {
