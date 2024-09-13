@@ -16,6 +16,8 @@ class GetUsers {
     String userType;
     String userImage;
 
+  var users_id;
+
     GetUsers({
         required this.userId,
         required this.userName,
