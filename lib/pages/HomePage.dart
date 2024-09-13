@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings, use_build_context_synchronously, prefer_const_constructors, library_private_types_in_public_api, unused_local_variable
+
 import 'dart:convert';
 import 'dart:math';
 import 'dart:developer' as dv;
@@ -675,7 +677,7 @@ void showLottoResultsOutMessage(BuildContext context) {
         lottoData = List<Map<String, dynamic>>.from(data);
       });
     } else {
-      print('Data is not a list');
+      dv.log('Data is not a list');
     }
   } catch (e) {
     dv.log('Error fetching lotto data: $e');
