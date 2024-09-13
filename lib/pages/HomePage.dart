@@ -520,8 +520,8 @@ class _HomePageState extends State<HomePage> {
     try {
       var response = await http
           .get(Uri.parse('https://node-api-lotto.vercel.app/result/'));
-      dv.log('Response status code: ${response.statusCode}');
-      dv.log('Response body: ${response.body}');
+      // dv.log('Response status code: ${response.statusCode}');
+      // dv.log('Response body: ${response.body}');
       if (response.statusCode == 200) {
         // ตรวจสอบว่าข้อมูลไม่ว่างเปล่าและมีเนื้อหาที่ต้องการ
         var data = jsonDecode(response.body) as List;
@@ -695,7 +695,7 @@ class _HomePageState extends State<HomePage> {
     try {
       var response = await http.get(
           Uri.parse('https://node-api-lotto.vercel.app/lotto/readyToSell'));
-      dv.log(response.body);
+      // dv.log(response.body);
     } catch (e) {
       dv.log('Error fetching data: $e');
     }

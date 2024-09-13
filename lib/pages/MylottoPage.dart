@@ -20,6 +20,8 @@ class _MylottopageState extends State<Mylottopage> {
   late Future<void> loadchekLotto;
   String server = '';
   String lottoStatus = ''; // Store checkmylotto result here
+  String selectedFilter = 'ทั้งหมด'; // Default filter
+  List<String> filterOptions = ['ทั้งหมด', 'ถูกรางวัล', 'ไม่ถูกรางวัล'];
 
   @override
   void initState() {
@@ -43,21 +45,35 @@ class _MylottopageState extends State<Mylottopage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Dropdown Button
+            DropdownButton<String>(
+              value: selectedFilter,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedFilter = newValue!;
+                });
+              },
+              items: filterOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+
             const SizedBox(height: 16),
             Text(
-              lottoStatus.isNotEmpty
-                  ? lottoStatus
-                  : '', // Display the status message when resultNumbers is empty
+              lottoStatus.isNotEmpty ? lottoStatus : '',
               style: const TextStyle(fontSize: 18, color: Colors.blue),
             ),
             const SizedBox(height: 16.0),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
+
+            Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                itemCount: lottoData.length,
+                itemCount: filteredLottoData().length, // Filtered data length
                 itemBuilder: (context, index) {
-                  var lottoItem = lottoData[index];
+                  var lottoItem = filteredLottoData()[index];
 
                   // Check if lotto_number matches any result_number
                   bool isWinner =
@@ -69,24 +85,30 @@ class _MylottopageState extends State<Mylottopage> {
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
                         children: [
+                          // Expanded widget for lotto_number with increased width
                           Expanded(
                             child: Text(
                               lottoItem['lotto_number'] ?? 'No Number',
                               style: const TextStyle(
-                                fontSize: 24,
+                                fontSize: 28, // Increase font size if needed
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          Text(
-                            resultNumbers.isEmpty
-                                ? 'รอผล' // Display "Waiting for results" if no result numbers are available
-                                : isWinner
-                                    ? 'ถูกรางวัล' // If winner
-                                    : 'ไม่ถูกรางวัล', // If not winner
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isWinner ? Colors.green : Colors.red,
+                          // Result status with reduced flex
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              resultNumbers.isEmpty
+                                  ? 'รอผล' // Display "Waiting for results" if no result numbers are available
+                                  : isWinner
+                                      ? 'ถูกรางวัล' // If winner
+                                      : 'ไม่ถูกรางวัล', // If not winner
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isWinner ? Colors.green : Colors.red,
+                              ),
+                              textAlign: TextAlign.right, // Align to right
                             ),
                           ),
                         ],
@@ -100,6 +122,24 @@ class _MylottopageState extends State<Mylottopage> {
         ),
       ),
     );
+  }
+
+  // Filter lottoData based on selected filter
+  List<Map<String, dynamic>> filteredLottoData() {
+    if (selectedFilter == 'ทั้งหมด') {
+      return lottoData;
+    } else if (selectedFilter == 'ถูกรางวัล') {
+      return lottoData
+          .where((lottoItem) =>
+              resultNumbers.contains(lottoItem['lotto_number']))
+          .toList();
+    } else if (selectedFilter == 'ไม่ถูกรางวัล') {
+      return lottoData
+          .where((lottoItem) =>
+              !resultNumbers.contains(lottoItem['lotto_number']))
+          .toList();
+    }
+    return lottoData;
   }
 
   Future<void> showmylotto() async {
