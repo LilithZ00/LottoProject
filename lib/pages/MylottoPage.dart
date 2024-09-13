@@ -44,34 +44,19 @@ class _MylottopageState extends State<Mylottopage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // Align content to the left
           children: [
-            // Dropdown Button
-            DropdownButton<String>(
-              value: selectedFilter,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedFilter = newValue!;
-                });
-              },
-              items: filterOptions.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-
             const SizedBox(height: 16),
             Text(
               lottoStatus.isNotEmpty ? lottoStatus : '',
               style: const TextStyle(fontSize: 18, color: Colors.blue),
             ),
             const SizedBox(height: 16.0),
-
-            Expanded(
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                itemCount: filteredLottoData().length, // Filtered data length
+                itemCount: lottoData.length,
                 itemBuilder: (context, index) {
                   var lottoItem = filteredLottoData()[index];
 
