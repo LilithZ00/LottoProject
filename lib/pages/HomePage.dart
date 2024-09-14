@@ -501,16 +501,87 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (confirmPurchase == true) {
-      setState(() {
-        isProcessing = true;
-      });
-      await purchaseLotto(userId, lottoId);
-      appData.updateUserWallet(userWallet - 100);
-      await showSuccess(context);
-      setState(() {
-        isProcessing = false;
-        loadLotto = showlotto();
-      });
+      final url = Uri.parse('https://node-api-lotto.vercel.app/lotto/');
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // แปลงข้อมูล JSON เป็น List ของ Map
+        final List<dynamic> data = json.decode(response.body) as List<dynamic>;
+
+        // ตรวจสอบว่ามีลอตเตอรี่ที่ยังไม่ถูกซื้อหรือไม่
+        bool hasUnpurchasedLotto = false;
+        bool hasPurchasedLotto = false;
+        var itemToPurchase; // ตัวแปรเก็บลอตเตอรี่ที่ต้องทำการซื้อ
+
+        for (var item in data) {
+          if(lottoId == item['lotto_id']){
+            // dv.log('id:'+lottoId.toString());
+            // dv.log('itemId:'+item['lotto_id'].toString());
+            
+          if (item['lotto_status'] == 'ถูกซื้อไปแล้ว') {
+            dv.log(
+                'gg: ${item['lotto_number']} ถูกซื้อไปแล้ว'); // แสดง log ว่ามีการซื้อไปแล้ว
+            hasPurchasedLotto = true;
+            break;
+          } else {
+            hasUnpurchasedLotto = true; // พบลอตเตอรี่ที่ยังไม่ถูกซื้อ
+            itemToPurchase = item; // เก็บลอตเตอรี่ที่ต้องทำการซื้อ
+            break;
+          }
+          }
+        }
+
+        if (hasUnpurchasedLotto) {
+          // ตั้งค่าการประมวลผลเป็น true
+          setState(() {
+            isProcessing = true;
+          });
+
+          // ทำการซื้อ
+          await purchaseLotto(
+              userId, itemToPurchase['lotto_id']); // ทำการซื้อลอตเตอรี่ที่เลือก
+          appData.updateUserWallet(userWallet - 100); // อัปเดตยอดเงินในกระเป๋า
+
+          // แสดงผลลัพธ์ความสำเร็จ
+          await showSuccess(context);
+
+          // ตั้งค่าการประมวลผลเป็น false และโหลดข้อมูลลอตเตอรี่ใหม่
+          setState(() {
+            isProcessing = false;
+            loadLotto = showlotto(); // โหลดข้อมูลลอตเตอรี่ใหม่
+          });
+        }else{
+          // ไม่มีลอตเตอรี่ที่ยังไม่ถูกซื้อ
+          dv.log('รายการนี้ถูกซื้อไปแล้ว');
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('ข้อมูลlotto'),
+                  content: Text('รายการนี้ถูกซื้อไปแล้ว'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('ตกลง'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // ปิด Dialog
+                        // รีเฟรชหน้าจอ
+                        setState(() {
+                          loadLotto = showlotto(); // โหลดข้อมูลลอตเตอรี่ใหม่
+                        });
+                      },
+                    ),
+                  ],
+                );
+              });
+        }
+      } else {
+        dv.log('Error: ${response.statusCode}');
+      }
     } else if (confirmPurchase == false) {
       showFailure(context);
     }
