@@ -21,7 +21,7 @@ class _MylottopageState extends State<Mylottopage> {
   String server = '';
   String lottoStatus = ''; // Store checkmylotto result here
   String selectedFilter = 'ทั้งหมด'; // Default filter
-  List<String> filterOptions = ['ทั้งหมด', 'ถูกรางวัล', 'ไม่ถูกรางวัล'];
+  List<String> filterOptions = ['ทั้งหมด', 'ถูกรางวัล', 'ไม่ถูกรางวัล', 'รอผล'];
 
   @override
   void initState() {
@@ -46,17 +46,36 @@ class _MylottopageState extends State<Mylottopage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, // Align content to the left
           children: [
-            const SizedBox(height: 16),
+            // Dropdown Button
+            DropdownButton<String>(
+              value: selectedFilter,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedFilter = newValue!;
+                });
+              },
+              items: filterOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 8),
+
             Text(
               lottoStatus.isNotEmpty ? lottoStatus : '',
               style: const TextStyle(fontSize: 18, color: Colors.blue),
             ),
-            const SizedBox(height: 16.0),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
+
+            const SizedBox(height: 8),
+
+            // Expanded to show the lotto numbers
+            Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                itemCount: lottoData.length,
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0), // Reduce padding
+                itemCount: filteredLottoData().length, // Filtered data length
                 itemBuilder: (context, index) {
                   var lottoItem = filteredLottoData()[index];
 
@@ -121,7 +140,11 @@ class _MylottopageState extends State<Mylottopage> {
     } else if (selectedFilter == 'ไม่ถูกรางวัล') {
       return lottoData
           .where((lottoItem) =>
-              !resultNumbers.contains(lottoItem['lotto_number']))
+              !resultNumbers.contains(lottoItem['lotto_number']) && resultNumbers.isNotEmpty)
+          .toList();
+    } else if (selectedFilter == 'รอผล') {
+      return lottoData
+          .where((lottoItem) => resultNumbers.isEmpty)
           .toList();
     }
     return lottoData;
